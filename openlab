@@ -1,0 +1,10 @@
+#!/usr/bin/expect -f
+
+spawn openvpn lab-connection.conf
+expect "*sername*"
+send -- "OS-19901"
+send -- "\r"
+expect "*?assword*"
+send -- "O5cn16gb3BK"
+send -- "\r"
+expect eof
