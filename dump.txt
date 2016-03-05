@@ -1,0 +1,274 @@
+############################################################
+####                      RECON SCAN                    ####
+####            A multi-process service scanner         ####
+####        http, ftp, dns, ssh, snmp, smtp, ms-sql     ####
+############################################################
+INFO: Running general TCP/UDP nmap scans for 192.168.31.208
+INFO: Performing nmap FTP script scan for 192.168.31.208:21
+INFO: Performing hydra ssh scan against 192.168.31.208
+INFO: Detected SSH on 192.168.31.208:22
+INFO: Detected ftp on 192.168.31.208:21
+INFO: Detected https on 192.168.31.208:443
+INFO: Performing nmap web script scan for 192.168.31.208:443
+INFO: Detected http on 192.168.31.208:80
+INFO: Performing nmap web script scan for 192.168.31.208:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.208
+INFO: Running general TCP/UDP nmap scans for 192.168.31.235
+INFO: Performing hydra ssh scan against 192.168.31.235
+INFO: Detected SSH on 192.168.31.235:22
+INFO: Detected http on 192.168.31.235:80
+INFO: Performing nmap web script scan for 192.168.31.235:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.235
+INFO: Running general TCP/UDP nmap scans for 192.168.31.247
+INFO: TCP/UDP Nmap scans completed for 192.168.31.247
+INFO: Running general TCP/UDP nmap scans for 192.168.31.231
+INFO: Detected SMB on 192.168.31.231:445
+INFO: Detected http on 192.168.31.231:80
+INFO: Performing nmap web script scan for 192.168.31.231:80
+INFO: Detected http on 192.168.31.231:1433
+INFO: Performing nmap web script scan for 192.168.31.231:1433
+INFO: TCP/UDP Nmap scans completed for 192.168.31.231
+INFO: Running general TCP/UDP nmap scans for 192.168.31.201
+INFO: Detected SMB on 192.168.31.201:445
+INFO: TCP/UDP Nmap scans completed for 192.168.31.201
+INFO: Running general TCP/UDP nmap scans for 192.168.31.204
+INFO: Performing nmap FTP script scan for 192.168.31.204:21
+INFO: Detected ftp on 192.168.31.204:21
+INFO: Detected http on 192.168.31.204:80
+INFO: Performing nmap web script scan for 192.168.31.204:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.204
+INFO: Running general TCP/UDP nmap scans for 192.168.31.239
+INFO: Detected http on 192.168.31.239:80
+INFO: Performing nmap web script scan for 192.168.31.239:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.239
+INFO: Running general TCP/UDP nmap scans for 192.168.31.251
+INFO: Performing hydra ssh scan against 192.168.31.251
+INFO: Detected SSH on 192.168.31.251:22
+INFO: Detected http on 192.168.31.251:80
+INFO: Performing nmap web script scan for 192.168.31.251:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.251
+INFO: Running general TCP/UDP nmap scans for 192.168.31.226
+INFO: Performing nmap FTP script scan for 192.168.31.226:21
+INFO: Detected ftp on 192.168.31.226:21
+INFO: TCP/UDP Nmap scans completed for 192.168.31.226
+INFO: Running general TCP/UDP nmap scans for 192.168.31.227
+INFO: Performing nmap FTP script scan for 192.168.31.227:21
+INFO: Detected ftp on 192.168.31.227:21
+INFO: Trying SMTP Enum on 192.168.31.227
+INFO: Detected smtp on 192.168.31.227:25
+INFO: Detected SMB on 192.168.31.227:445
+INFO: Detected http on 192.168.31.227:6532
+INFO: Performing nmap web script scan for 192.168.31.227:6532
+INFO: Detected http on 192.168.31.227:80
+INFO: Performing nmap web script scan for 192.168.31.227:80
+INFO: Detected https on 192.168.31.227:443
+INFO: Performing nmap web script scan for 192.168.31.227:443
+INFO: Detected http on 192.168.31.227:27900
+INFO: Performing nmap web script scan for 192.168.31.227:27900
+INFO: TCP/UDP Nmap scans completed for 192.168.31.227
+INFO: Running general TCP/UDP nmap scans for 192.168.31.210
+INFO: Detected SMB on 192.168.31.210:445
+INFO: Detected http on 192.168.31.210:80
+INFO: Performing nmap web script scan for 192.168.31.210:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.210
+INFO: Running general TCP/UDP nmap scans for 192.168.31.206
+INFO: Performing nmap FTP script scan for 192.168.31.206:21
+INFO: Detected ftp on 192.168.31.206:21
+INFO: Detected SMB on 192.168.31.206:445
+INFO: Detected https on 192.168.31.206:4443
+INFO: Performing nmap web script scan for 192.168.31.206:4443
+INFO: Detected http on 192.168.31.206:3339
+INFO: Performing nmap web script scan for 192.168.31.206:3339
+INFO: Detected http on 192.168.31.206:80
+INFO: Performing nmap web script scan for 192.168.31.206:80
+INFO: Detected https on 192.168.31.206:443
+INFO: Performing nmap web script scan for 192.168.31.206:443
+INFO: Detected http on 192.168.31.206:7778
+INFO: Performing nmap web script scan for 192.168.31.206:7778
+INFO: TCP/UDP Nmap scans completed for 192.168.31.206
+INFO: Running general TCP/UDP nmap scans for 192.168.31.203
+INFO: Performing nmap FTP script scan for 192.168.31.203:21
+INFO: Detected ftp on 192.168.31.203:21
+INFO: Detected http on 192.168.31.203:80
+INFO: Performing nmap web script scan for 192.168.31.203:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.203
+INFO: Running general TCP/UDP nmap scans for 192.168.31.207
+INFO: TCP/UDP Nmap scans completed for 192.168.31.207
+INFO: Running general TCP/UDP nmap scans for 192.168.31.218
+INFO: Detected SMB on 192.168.31.218:445
+INFO: Running general TCP/UDP nmap scans for 192.168.31.214
+INFO: Performing hydra ssh scan against 192.168.31.214
+INFO: Detected SSH on 192.168.31.214:22
+INFO: Detected http on 192.168.31.218:5357
+INFO: Performing nmap web script scan for 192.168.31.218:5357
+INFO: TCP/UDP Nmap scans completed for 192.168.31.218
+INFO: Running general TCP/UDP nmap scans for 192.168.31.216
+INFO: Performing nmap FTP script scan for 192.168.31.216:21
+INFO: Performing hydra ssh scan against 192.168.31.216
+INFO: Detected SSH on 192.168.31.216:22
+INFO: Detected ftp on 192.168.31.216:21
+INFO: Detected http on 192.168.31.214:3790
+INFO: Performing nmap web script scan for 192.168.31.214:3790
+INFO: TCP/UDP Nmap scans completed for 192.168.31.214
+INFO: Detected http on 192.168.31.216:80
+INFO: Performing nmap web script scan for 192.168.31.216:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.216
+INFO: Running general TCP/UDP nmap scans for 192.168.31.245
+INFO: Detected SMB on 192.168.31.245:445
+INFO: Detected http on 192.168.31.245:8080
+INFO: Performing nmap web script scan for 192.168.31.245:8080
+INFO: TCP/UDP Nmap scans completed for 192.168.31.245
+INFO: Running general TCP/UDP nmap scans for 192.168.31.244
+INFO: Performing hydra ssh scan against 192.168.31.244
+INFO: Detected SSH on 192.168.31.244:22
+INFO: Detected https on 192.168.31.244:8000
+INFO: Performing nmap web script scan for 192.168.31.244:8000
+INFO: TCP/UDP Nmap scans completed for 192.168.31.244
+INFO: Running general TCP/UDP nmap scans for 192.168.31.225
+INFO: Performing nmap FTP script scan for 192.168.31.225:21
+INFO: Detected ftp on 192.168.31.225:21
+INFO: TCP/UDP Nmap scans completed for 192.168.31.225
+INFO: Running general TCP/UDP nmap scans for 192.168.31.219
+INFO: Performing hydra ssh scan against 192.168.31.219
+INFO: Detected SSH on 192.168.31.219:22
+INFO: Detected http on 192.168.31.219:80
+INFO: Performing nmap web script scan for 192.168.31.219:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.219
+INFO: Running general TCP/UDP nmap scans for 192.168.31.250
+INFO: Detected http on 192.168.31.250:80
+INFO: Performing nmap web script scan for 192.168.31.250:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.250
+INFO: Running general TCP/UDP nmap scans for 192.168.31.236
+INFO: Performing hydra ssh scan against 192.168.31.236
+INFO: Detected SSH on 192.168.31.236:22
+INFO: TCP/UDP Nmap scans completed for 192.168.31.236
+INFO: Running general TCP/UDP nmap scans for 192.168.31.221
+INFO: Detected http on 192.168.31.221:5357
+INFO: Performing nmap web script scan for 192.168.31.221:5357
+INFO: Attempting Domain Transfer on SLAVE
+INFO: Detected DNS on 192.168.31.221:53
+INFO: TCP/UDP Nmap scans completed for 192.168.31.221
+INFO: Running general TCP/UDP nmap scans for 192.168.31.234
+INFO: Performing hydra ssh scan against 192.168.31.234
+INFO: Detected SSH on 192.168.31.234:22
+INFO: Detected http on 192.168.31.234:10443
+INFO: Performing nmap web script scan for 192.168.31.234:10443
+INFO: Detected http on 192.168.31.234:80
+INFO: Performing nmap web script scan for 192.168.31.234:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.234
+INFO: Running general TCP/UDP nmap scans for 192.168.31.249
+INFO: Performing hydra ssh scan against 192.168.31.249
+INFO: Performing nmap FTP script scan for 192.168.31.249:21
+INFO: Detected SSH on 192.168.31.249:22
+INFO: Detected ftp on 192.168.31.249:21
+INFO: TCP/UDP Nmap scans completed for 192.168.31.249
+INFO: Running general TCP/UDP nmap scans for 192.168.31.205
+INFO: Performing nmap FTP script scan for 192.168.31.205:2100
+INFO: Detected ftp on 192.168.31.205:2100
+INFO: Performing nmap FTP script scan for 192.168.31.205:21
+INFO: Detected ftp on 192.168.31.205:21
+INFO: Detected SMB on 192.168.31.205:445
+INFO: Detected http on 192.168.31.205:3339
+INFO: Performing nmap web script scan for 192.168.31.205:3339
+INFO: Detected https on 192.168.31.205:443
+INFO: Performing nmap web script scan for 192.168.31.205:443
+INFO: Detected http on 192.168.31.205:8080
+INFO: Performing nmap web script scan for 192.168.31.205:8080
+INFO: Detected http on 192.168.31.205:7778
+INFO: Performing nmap web script scan for 192.168.31.205:7778
+INFO: Detected http on 192.168.31.205:80
+INFO: Performing nmap web script scan for 192.168.31.205:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.205
+INFO: Running general TCP/UDP nmap scans for 192.168.31.224
+INFO: Performing hydra ssh scan against 192.168.31.224
+INFO: Detected SSH on 192.168.31.224:22
+INFO: Detected http on 192.168.31.224:80
+INFO: Performing nmap web script scan for 192.168.31.224:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.224
+INFO: Running general TCP/UDP nmap scans for 192.168.31.230
+INFO: Detected SMB on 192.168.31.230:445
+INFO: Detected http on 192.168.31.230:80
+INFO: Performing nmap web script scan for 192.168.31.230:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.230
+INFO: Running general TCP/UDP nmap scans for 192.168.31.215
+INFO: Performing nmap FTP script scan for 192.168.31.215:21
+INFO: Performing hydra ssh scan against 192.168.31.215
+INFO: Detected ftp on 192.168.31.215:21
+INFO: Detected SSH on 192.168.31.215:22
+INFO: Trying SMTP Enum on 192.168.31.215
+INFO: Detected smtp on 192.168.31.215:25
+INFO: TCP/UDP Nmap scans completed for 192.168.31.215
+INFO: Running general TCP/UDP nmap scans for 192.168.31.223
+INFO: Detected SMB on 192.168.31.223:445
+INFO: Detected https on 192.168.31.223:443
+INFO: Performing nmap web script scan for 192.168.31.223:443
+INFO: Detected http on 192.168.31.223:80
+INFO: Performing nmap web script scan for 192.168.31.223:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.223
+INFO: Running general TCP/UDP nmap scans for 192.168.31.237
+INFO: Performing hydra ssh scan against 192.168.31.237
+INFO: Detected SSH on 192.168.31.237:22
+INFO: Trying SMTP Enum on 192.168.31.237
+INFO: Detected smtp on 192.168.31.237:25
+INFO: Detected https on 192.168.31.237:443
+INFO: Performing nmap web script scan for 192.168.31.237:443
+INFO: Detected http on 192.168.31.237:80
+INFO: Performing nmap web script scan for 192.168.31.237:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.237
+INFO: Running general TCP/UDP nmap scans for 192.168.31.238
+INFO: Performing hydra ssh scan against 192.168.31.238
+INFO: Detected SSH on 192.168.31.238:22
+INFO: Detected http on 192.168.31.238:80
+INFO: Performing nmap web script scan for 192.168.31.238:80
+INFO: Detected https on 192.168.31.238:443
+INFO: Performing nmap web script scan for 192.168.31.238:443
+INFO: TCP/UDP Nmap scans completed for 192.168.31.238
+INFO: Running general TCP/UDP nmap scans for 192.168.31.220
+INFO: Performing nmap FTP script scan for 192.168.31.220:21
+INFO: Detected ftp on 192.168.31.220:21
+INFO: Detected SMB on 192.168.31.220:445
+INFO: Detected http on 192.168.31.220:47001
+INFO: Performing nmap web script scan for 192.168.31.220:47001
+INFO: Attempting Domain Transfer on MASTER
+INFO: Detected DNS on 192.168.31.220:53
+INFO: TCP/UDP Nmap scans completed for 192.168.31.220
+INFO: Running general TCP/UDP nmap scans for 192.168.31.242
+INFO: Performing hydra ssh scan against 192.168.31.242
+INFO: Detected SSH on 192.168.31.242:22
+INFO: Detected http on 192.168.31.242:10000
+INFO: Performing nmap web script scan for 192.168.31.242:10000
+INFO: TCP/UDP Nmap scans completed for 192.168.31.242
+INFO: Running general TCP/UDP nmap scans for 192.168.31.222
+INFO: Performing nmap FTP script scan for 192.168.31.222:21
+INFO: Detected ftp on 192.168.31.222:21
+INFO: Trying SMTP Enum on 192.168.31.222
+INFO: Detected smtp on 192.168.31.222:25
+INFO: Performing hydra ssh scan against 192.168.31.222
+INFO: Detected SSH on 192.168.31.222:22
+INFO: Detected https on 192.168.31.222:443
+INFO: Performing nmap web script scan for 192.168.31.222:443
+INFO: Detected http on 192.168.31.222:80
+INFO: Performing nmap web script scan for 192.168.31.222:80
+INFO: TCP/UDP Nmap scans completed for 192.168.31.222
+INFO: Running general TCP/UDP nmap scans for 192.168.31.252
+INFO: Performing hydra ssh scan against 192.168.31.252
+INFO: Detected SSH on 192.168.31.252:22000
+INFO: Detected http on 192.168.31.252:8000
+INFO: Performing nmap web script scan for 192.168.31.252:8000
+INFO: TCP/UDP Nmap scans completed for 192.168.31.252
+INFO: Running general TCP/UDP nmap scans for 192.168.31.202
+INFO: TCP/UDP Nmap scans completed for 192.168.31.202
+INFO: Running general TCP/UDP nmap scans for 192.168.31.241
+INFO: Performing hydra ssh scan against 192.168.31.241
+INFO: Detected SSH on 192.168.31.241:22
+INFO: Detected http on 192.168.31.241:10000
+INFO: Performing nmap web script scan for 192.168.31.241:10000
+INFO: TCP/UDP Nmap scans completed for 192.168.31.241
+INFO: Running general TCP/UDP nmap scans for 192.168.31.209
+INFO: Performing hydra ssh scan against 192.168.31.209
+INFO: Detected SSH on 192.168.31.209:22
+INFO: Detected http on 192.168.31.209:80
+INFO: Performing nmap web script scan for 192.168.31.209:80
+INFO: Detected http on 192.168.31.209:8080
+INFO: Performing nmap web script scan for 192.168.31.209:8080
+INFO: TCP/UDP Nmap scans completed for 192.168.31.209
