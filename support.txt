@@ -1,0 +1,2 @@
+https://10.70.70.70/oscpanel/labcpanel.php?md=b65c572dd9b210b3dff52be9b4c7997b&pid=189465&servers=0
+https://forums.offensive-security.com/
