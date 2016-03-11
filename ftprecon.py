@@ -23,7 +23,12 @@ f.close
 print "INFO: Performing hydra ftp scan against " + ip_address 
 HYDRA = "hydra -L %s -P %s -f -o %s/%s_ftphydra.txt -u %s -s %s ftp" % (reconf.usrlst, reconf.pwdlst, reconf.rsltpth, ip_address, ip_address, port)
 results = subprocess.check_output(HYDRA, shell=True)
+outfile = "%s/%s_hydraresults.txt" % (reconf.exampth, ip_address)
 resultarr = results.split("\n")
 for result in resultarr:
     if "login:" in result:
 	print "[*] Valid ftp credentials found: " + result 
+
+f = open(outfile, "w")
+f.write(results)
+f.close
