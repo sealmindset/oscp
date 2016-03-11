@@ -36,13 +36,25 @@ def osreplace(text):
 	if tag in text:
 		return (text.replace(tag, ''))
 
-def ssploit(prod,ver):
-	HYDRA = "searchsploit %s %s" % (prod,ver)
+def ssploit(prod,ver,os):
+	if re.search('rdp',prod):
+		if re.search('windows',os):
+			SPLOIT = "searchsploit %s %s" % (prod,os)
+	else:
+		SPLOIT = "searchsploit %s %s" % (prod,ver)
+	APLOIT = "%s|%s" % (prod,ver)
+	OPLOIT = "searchsploit %s %s" % (prod,os)
+	AOLOIT = "%s|%s" % (prod,os)
 	try:
-    		results = subprocess.check_output(HYDRA, shell=True)
-            	print "[*] found: " + results
+    		results = subprocess.check_output(SPLOIT, shell=True)
+		if re.search(APLOIT, results):
+            		return results
+		else:
+    			results = subprocess.check_output(OPLOIT, shell=True)
+			if re.search(AOLOIT, results):
+				return results
 	except:
-    		print "INFO: none found"
+    		print "INFO: No exploits found for %s %s" % (prod, ver) 
 
 
 xmlfile = "%s/%s_nmap_scan_import.xml" % (reconf.nmappth, ip_address)
@@ -198,7 +210,6 @@ if re.match('Microsoft|Windows', os):
                                 i = iter(os.split())
                                 os = map(''.join,zip(i,i))[0]
                                 os = osreplace(os).strip()
-
 	else:
         	if services.port == 443:
                 	prod = "https"
@@ -207,6 +218,16 @@ if re.match('Microsoft|Windows', os):
 			prod = ""
 			ver = ""
 			os = "windows"
-     	print "INFO: Performing searchsploit on Port: "'{0: <5}'.format(services.port), "Prod: "'{0: <15}'.format(prod), "Version: "'{0: <15}'.format(ver), "OS: "'{0: <15}'.format(os) 
-	if prod or ver: 
-		ssploit(prod, ver)
+     	
+	print "INFO: Performing searchsploit on Port: "'{0: <5}'.format(services.port), "Prod: "'{0: <15}'.format(prod), "Version: "'{0: <15}'.format(ver), "OS: "'{0: <15}'.format(os) 
+
+	if os and prod or ver: 
+		result = ssploit(prod, ver, os)
+		ofile = "%s/%s_exploitdb.txt" % (reconf.exampth,ip_address)
+		rhead = "\n IP Address: %s Port: %s \n" % (ip_address,services.port)		
+		try:
+			with open(ofile, 'a') as file:
+				file.write(rhead)
+				file.write(result) 		
+		except:
+			print "ERROR: Couldn't write to %s" % (ofile)		
