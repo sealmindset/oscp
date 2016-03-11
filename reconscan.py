@@ -30,6 +30,11 @@ def dnsEnum(ip_address, port):
        subprocess.call(SCRIPT, shell=True)
     return
 
+def searchsploitEnum(ip_address):
+    SCRIPT = "./vulnrecon.py %s" % (ip_address)         
+    subprocess.call(SCRIPT, shell=True)
+    return
+
 def httpEnum(ip_address, port):
     print "INFO: Detected http on " + ip_address + ":" + port
     print "INFO: Performing nmap web script scan for " + ip_address + ":" + port    
@@ -164,6 +169,7 @@ def nmapScan(ip_address):
 	    multProc(httpEnum, ip_address, port)
       
    print "INFO: TCP/UDP Nmap scans completed for " + ip_address 
+   searchsploitEnum(ip_address)
    return
 
 def createList(ipadr):
@@ -206,10 +212,10 @@ if __name__=='__main__':
    f = open(reconf.olst, 'r') 
    for scanip in f:
        jobs = []
-       multiprocessing.cpu_count()-1
        p = multiprocessing.Process(target=nmapScan, args=(scanip,))
        jobs.append(p)
        p.start()
-   jobs[-1].terminate()
    f.close()
- 
+
+for j in jobs:
+	j.join() 
