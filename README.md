@@ -6,7 +6,7 @@ https://drive.google.com/folderview?id=0B8BpJ_bHwXSKZ2ZiR1FQTHNoOEk&usp=sharing&
 #!/bin/sh
 
 #input sharelink here. Example: https://drive.google.com/folderview?id=0B1g-MbiD2F6vdtOT92b3MoerO&usp=sharing
-SHARELINK="https://drive.google.com/folderview?id=idU&usp=sharing"
+SHARELINK="https://drive.google.com/folderview?id=0B8BpJ_bHwXSKZ2ZiR1FQTHNoOEk&usp=sharing"
 DESTINATION="/full/path/to/folder"
 # Change following to false when you don't want to delete files when they are missing from google drive. This can
 REMOVEFILES=true 
