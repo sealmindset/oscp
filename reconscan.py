@@ -31,6 +31,7 @@ def dnsEnum(ip_address, port):
     return
 
 def searchsploitEnum(ip_address):
+    print "INFO: Searching for known exploits for " + ip_address
     SCRIPT = "./vulnrecon.py %s" % (ip_address)         
     subprocess.call(SCRIPT, shell=True)
     return
@@ -38,35 +39,40 @@ def searchsploitEnum(ip_address):
 def httpEnum(ip_address, port):
     print "INFO: Detected http on " + ip_address + ":" + port
     print "INFO: Performing nmap web script scan for " + ip_address + ":" + port    
-    HTTPSCAN = "nmap -sV -Pn -vv -p %s --script=http-vhosts,http-userdir-enum,http-apache-negotiation,http-backup-finder,http-config-backup,http-default-accounts,http-email-harvest,http-methods,http-method-tamper,http-passwd,http-robots.txt -oN %s/%s_http.nmap %s" % (port, reconf.exampth, ip_address, ip_address)
+    HTTPSCAN = "nmap -sV -Pn -n -vv -p %s --script=%s -oN %s/%s_http.nmap %s" % (port, reconf.nmapscripts, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCAN, shell=True)
-    DIRBUST = "./dirbust.py http://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
-    subprocess.call(DIRBUST, shell=True)
+    #DIRBUST = "./dirbust.py http://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
+    #subprocess.call(DIRBUST, shell=True)
     #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
     return
 
 def httpsEnum(ip_address, port):
     print "INFO: Detected https on " + ip_address + ":" + port
     print "INFO: Performing nmap web script scan for " + ip_address + ":" + port    
-    HTTPSCANS = "nmap -sV -Pn -vv -p %s --script=http-vhosts,http-userdir-enum,http-apache-negotiation,http-backup-finder,http-config-backup,http-default-accounts,http-email-harvest,http-methods,http-method-tamper,http-passwd,http-robots.txt -oX %s/%s_https.nmap %s" % (port, reconf.exampth, ip_address, ip_address)
+    HTTPSCANS = "nmap -sV -Pn -n -vv -p %s --script=%s -oX %s/%s_https.nmap %s" % (port, reconf.nmapscripts, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCANS, shell=True)
-    DIRBUST = "./dirbust.py https://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
-    subprocess.call(DIRBUST, shell=True)
+    #DIRBUST = "./dirbust.py https://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
+    #subprocess.call(DIRBUST, shell=True)
     #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
     return
 
-def httpScreen(ip_address, port):
-    print "INFO: Screenshot of http " + ip_address + ":" + port
-    print "INFO: Performing nmap screenshot of webpage for " + ip_address + ":" + port    
-    HTTPSCREEN = "nmap -sV -Pn -vv -p %s --script=http-screenshot-html -oX %s/%s_screen.nmap %s" % (port, reconf.exampth, ip_address, ip_address)
-    subprocess.call(HTTPSCREEN, shell=True)
-    return
+def oracleEnum(ip_address, port):
+    print "INFO: Detected Oracle on " + ip_address + ":" + port
+    print "INFO: Performing nmap mssql script scan for " + ip_address + ":" + port    
+    ORACLESCAN = "nmap -vv -sV -Pn -p %s --script=oracle-enum-users,oracle-sid-brute -oX %s/%s_oracle.xml %s" % (port, reconf.exampth, ip_address, ip_address)
+    results = subprocess.check_output(ORACLESCAN, shell=True)
 
 def mssqlEnum(ip_address, port):
     print "INFO: Detected MS-SQL on " + ip_address + ":" + port
     print "INFO: Performing nmap mssql script scan for " + ip_address + ":" + port    
     MSSQLSCAN = "nmap -vv -sV -Pn -p %s --script=ms-sql-info,ms-sql-config,ms-sql-dump-hashes --script-args=mssql.instance-port=1433,smsql.username-sa,mssql.password-sa -oX %s/%s_mssql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(MSSQLSCAN, shell=True)
+
+def mysqlEnum(ip_address, port):
+    print "INFO: Detected MySQL on " + ip_address + ":" + port
+    print "INFO: Performing nmap mssql script scan for " + ip_address + ":" + port    
+    MYSQLSCAN = "nmap -vv -sV -Pn -p %s --script=mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 -oX %s/%s_mysql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
+    results = subprocess.check_output(MYSQLSCAN, shell=True)
 
 def sshEnum(ip_address, port):
     print "INFO: Detected SSH on " + ip_address + ":" + port
@@ -104,11 +110,12 @@ def ftpEnum(ip_address, port):
 
 def nmapScan(ip_address):
    ip_address = ip_address.strip()
-   print "INFO: Running general TCP/UDP nmap scans for " + ip_address
    serv_dict = {}
-   TCPSCAN = "nmap -vv -Pn -A -sC -sS -T 4 -p- -oN '%s/%s.nmap' -oX '%s/%s_nmap_scan_import.xml' %s"  % (reconf.exampth, ip_address, reconf.nmappth, ip_address, ip_address)
-   UDPSCAN = "nmap -vv -Pn -A -sC -sU -T 4 --top-ports 200 -oN '%s/%sU.nmap' -oX '%s/%sU_nmap_scan_import.xml' %s" % (reconf.exampth, ip_address, reconf.nmappth, ip_address, ip_address)
+   TCPSCAN = "nmap -sV -vv -Pn -A -sC -sS -T 4 -p- -oN '%s/%s.nmap' -oX '%s/%s_nmap_scan_import.xml' %s"  % (reconf.exampth, ip_address, reconf.nmappth, ip_address, ip_address)
+   UDPSCAN = "nmap -sV -vv -Pn -A -sC -sU -T 4 --top-ports 200 -oN '%s/%sU.nmap' -oX '%s/%sU_nmap_scan_import.xml' %s" % (reconf.exampth, ip_address, reconf.nmappth, ip_address, ip_address)
+   print "INFO: Running general TCP nmap scans for " + ip_address
    results = subprocess.check_output(TCPSCAN, shell=True)
+   print "INFO: Running general UDP nmap scans for " + ip_address
    udpresults = subprocess.check_output(UDPSCAN, shell=True)
    lines = results.split("\n")
    for line in lines:
@@ -133,12 +140,10 @@ def nmapScan(ip_address):
  	 for port in ports:
 	    port = port.split("/")[0]
 	    multProc(httpEnum, ip_address, port)
-	    multProc(httpScreen, ip_address, port)
       elif (serv == "ssl/http") or ("https" in serv):
 	 for port in ports:
 	    port = port.split("/")[0]
 	    multProc(httpsEnum, ip_address, port)
-	    multProc(httpScreen, ip_address, port)
       elif "ssh" in serv:
 	 for port in ports:
 	    port = port.split("/")[0]
@@ -166,7 +171,15 @@ def nmapScan(ip_address):
       elif "ms-sql" in serv:
  	 for port in ports:
 	    port = port.split("/")[0]
-	    multProc(httpEnum, ip_address, port)
+	    multProc(mssqlEnum, ip_address, port)
+      elif "oracle-tns" in serv:
+ 	 for port in ports:
+	    port = port.split("/")[0]
+	    multProc(oracleEnum, ip_address, port)
+      elif "mysql" in serv:
+ 	 for port in ports:
+	    port = port.split("/")[0]
+	    multProc(mysqlEnum, ip_address, port)
       
    print "INFO: TCP/UDP Nmap scans completed for " + ip_address 
    searchsploitEnum(ip_address)
@@ -203,11 +216,7 @@ if __name__=='__main__':
    # Create list of active IPs
    createList(reconf.iprange)
 
-   print "############################################################"
-   print "####                      RECON SCAN                    ####"
-   print "####            A multi-process service scanner         ####"
-   print "####        http, ftp, dns, ssh, snmp, smtp, ms-sql     ####"
-   print "############################################################"
+   print "Intel Gathering"
 
    f = open(reconf.olst, 'r') 
    for scanip in f:

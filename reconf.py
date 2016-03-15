@@ -9,6 +9,7 @@ def set_vars():
     global rsltpth
     global exampth
     global nmappth
+    global nmapscripts
     global wordlst
     global vulns
     global usrlst
@@ -33,6 +34,8 @@ def set_vars():
     nmappth = config.get('paths','nmappth')
     wordlst = config.get('wordlist','wordlst')
     vulns = config.get('vuln','vulns')
+
+    nmapscripts = config.get('nmapscripts','nmapscripts')
 
     usrlst = config.get('crack','usrlst')
     pwdlst = config.get('crack','pwdlst')
