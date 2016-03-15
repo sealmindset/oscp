@@ -1,26 +1,3 @@
--- Copyright (C) 2012 Aaron Giuoco
--- http://giuoco.org
---
--- This program is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; version 2 dated June, 1991 or at your option
--- any later version.
---
--- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
--- GNU General Public License for more details.
---
--- A copy of the GNU General Public License is available in the source tree;
--- if not, write to the Free Software Foundation, Inc.,
--- 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
---@args path The path to request, such as <code>/index.php</code>. Default is <code>/</code>.
---@args useget Set to force GET requests instead of HEAD.
---@args outpath The path for all output (pictures, etc.).  Default is current directory.
---@args outfile The file name of the output file containing the HTML code.  Default is <code>screenshot.html</code>.
---@args imgquality Determines the quality of the images output by wkhtmltoimage. Default is 30.
-
 description = [[
 Version 1.3
 September 4, 2014
