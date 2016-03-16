@@ -54,10 +54,10 @@ def ssploit(prod,ver,os):
 			if re.search(AOLOIT, results):
 				return results
 	except:
-    		print "INFO: No exploits found for %s %s" % (prod, ver) 
+    		print "[!]: No exploits found for %s %s" % (prod, ver) 
 
 
-xmlfile = "%s/%s_nmap_scan_import.xml" % (reconf.nmappth, ip_address)
+xmlfile = "%s/%s.xml" % (reconf.exampth, ip_address)
 with open (xmlfile, 'rt') as file: 
     tree = ElementTree.parse(file)
 
@@ -77,8 +77,6 @@ if re.match('Microsoft|Windows', os):
 	ver = ''
 	os = ''
 	serv = services.banner
-	#print
-     	#print "Pre - Port: "'{0: <5}'.format(services.port), "Serv: "'{0: <34}'.format(serv) 
 	serv = serv.replace('Microsoft ', '')
 	if serv:
 		if 'product' in serv and 'version' in serv and 'ostype' in serv and 'extrainfo' in serv:
@@ -219,7 +217,7 @@ if re.match('Microsoft|Windows', os):
 			ver = ""
 			os = "windows"
      	
-	print "INFO: Performing searchsploit on Port: "'{0: <5}'.format(services.port), "Prod: "'{0: <15}'.format(prod), "Version: "'{0: <15}'.format(ver), "OS: "'{0: <15}'.format(os) 
+	print "[+] Performing searchsploit on Port: "'{0: <5}'.format(services.port), "Prod: "'{0: <15}'.format(prod), "Version: "'{0: <15}'.format(ver), "OS: "'{0: <15}'.format(os) 
 
 	if os and prod or ver: 
 		result = ssploit(prod, ver, os)
