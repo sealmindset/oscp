@@ -8,12 +8,26 @@ import os
 import re
 import reconf
 from reconf import *
+import time
+from functools import wraps
 
 if len(sys.argv) != 2:
-    print "Usage: vulnrecon.py <ip address>"
+    print "Usage: deeprecon.py <ip address>"
     sys.exit(0)
 
 ip_address = sys.argv[1].strip()
+
+def fn_timer(function):
+    @wraps(function)
+    def function_timer(*args, **kwargs):
+        t0 = time.time()
+        result = function(*args, **kwargs)
+        t1 = time.time()
+        print ("Total time running %s: %s seconds" %
+               (function.func_name, str(t1-t0))
+               )
+        return result
+    return function_timer
 
 def chkfolders():
     dpths = [reconf.rootpth,reconf.labpath,reconf.rsltpth,reconf.exampth,reconf.nmappth]
@@ -21,6 +35,7 @@ def chkfolders():
         if not os.path.exists(dpth):
                 os.makedirs(dpth)
 
+@fn_timer
 def multProc(targetin, scanip, port):
     jobs = []
     p = multiprocessing.Process(target=targetin, args=(scanip,port))
@@ -46,8 +61,8 @@ def httpEnum(ip_address, port):
     print "INFO: Performing nmap web script scan for %s:%s" % (ip_address, port) 
     HTTPSCAN = "nmap -sV -Pn -n -vv -p %s --script=%s -oN %s/%s_http.nmap %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCAN, shell=True)
-    DIRBUST = "./dirbust.py http://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
-    subprocess.call(DIRBUST, shell=True)
+    #DIRBUST = "./dirbust.py http://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
+    #subprocess.call(DIRBUST, shell=True)
     #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
     return
 
@@ -56,8 +71,8 @@ def httpsEnum(ip_address, port):
     print "INFO: Performing nmap web script scan for %s:%s" % (ip_address, port) 
     HTTPSCANS = "nmap -sV -Pn -n -vv -p %s --script=%s -oX %s/%s_https.nmap %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCANS, shell=True)
-    DIRBUST = "./dirbust.py https://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
-    subprocess.call(DIRBUST, shell=True)
+    #DIRBUST = "./dirbust.py https://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
+    #subprocess.call(DIRBUST, shell=True)
     #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
     return
 

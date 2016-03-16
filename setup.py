@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import re
+import hashlib
 import pip
 installed_packages = pip.get_installed_distributions()
 import reconf
@@ -15,13 +16,13 @@ def chkfolders():
     dpths = [reconf.rootpth,reconf.labpath,reconf.rsltpth,reconf.exampth,reconf.nmappth]
     for dpth in dpths:
         if not os.path.exists(dpth):
-		print "[!] $s folder is missingi, creating it now..." % (dpth)
+		print "[!] $s folder is missing, creating it now..." % (dpth)
                 os.makedirs(dpth)
 	else:
 		print "[+] We're okay, %s folder exists" % (dpth)
 
 def upnsedb(url):
-	NSE = "wget -c %s -P %s" % (url, '/usr/share/nmap/scripts')
+	NSE = "wget -c %s -P %s" % (url, reconf.nsepth)
 	print "[!] Fetching %s " % (nsefile)
 	subprocess.call(NSE, shell=True)
 	print "[+] Updating Nmap database with %s " % (nsefile)
@@ -31,14 +32,19 @@ def upnsedb(url):
 def install(package):
 	pip.main(['install', package])
 
+def hashfile(afile, hasher, blocksize=65536):
+    	buf = afile.read(blocksize)
+    	while len(buf) > 0:
+        	hasher.update(buf)
+        	buf = afile.read(blocksize)
+    	return hasher.digest()
+
 if __name__=='__main__':
 	print "[*] Installing missing NSE scripts..."
-	nsearray = ['vulscan.nse','http-screenshot-html.nse','smb-check-vulns.nse']
+	nsearray = ['http-screenshot-html.nse','smb-check-vulns.nse']
 	for nsefile in nsearray:
-		nsescript = "/usr/share/nmap/scripts/%s" % (nsefile)
+		nsescript = "%s/%s" % (reconf.nsepth, nsefile)
 		if not os.path.isfile(nsescript):
-			if re.search('vulscan.nse', nsefile):
-				upnsedb('https://raw.githubusercontent.com/cldrn/nmap-nse-scripts/master/scripts/6.x/vulscan.nse')
 			if re.search('http-screenshot-html.nse', nsefile):
 				upnsedb('https://raw.githubusercontent.com/afxdub/http-screenshot-html/master/http-screenshot-html.nse')
 			if re.search('smb-check-vulns.nse', nsefile):
@@ -56,18 +62,17 @@ if __name__=='__main__':
 	CXZ = "cp %s %s" % (EXT, BIN)	
 	print "[*] Checking for the installation of %s..." % (FN)
 	if not os.path.isfile(BFN):
-		if not os.path.isfile(BFN):
-			if not os.path.isfile(TAR):
-				print "[+] Downloading wkhtmltoimage..."
-				filename = subprocess.call(URL, shell=True)
+		if os.path.isfile(TAR):
+			print "[+] Downloading wkhtmltoimage..."
+			filename = subprocess.call(URL, shell=True)
+		if os.path.isfile(TAR):
+			print "[+] Extracting %s file %s to %s..." % (TAR, EXT, BIN)
+			subprocess.call(TXZ, shell=True)
+			subprocess.call(CXZ, shell=True)
+			if not os.path.isfile(BFN):
+				print "[!] %s not found in %s" % (FN, BIN)
 			else:
-				print "[+] Extracting %s file %s to %s..." % (TAR, EXT, BIN)
-				subprocess.call(TXZ, shell=True)
-				subprocess.call(CXZ, shell=True)
-				if not os.path.isfile(BFN):
-					print "[!] %s not found in %s" % (FN, BIN)
-				else:
-					print "[+] %s is install to %s" % (FN, BIN)
+				print "[+] %s is install to %s" % (FN, BIN)
 	else:
 		print "[+] We're good: %s is installed" % (FN)
 
@@ -84,3 +89,21 @@ if __name__=='__main__':
 			print "[!] The %s module hasn't been installed yet..." % (pkgname)
 			print "[!] Installing %s module now..." % (pkgname)
 			install(pkgname)
+
+	TAR = "nmap_nse_vulscan-2.0.tar.gz"
+	URL = "wget -c http://www.computec.ch/projekte/vulscan/download/%s" % (TAR)
+        VPT = "%s/vulscan" % (reconf.nsepth)
+	TXZ = "tar -xzvf %s -C %s" % (TAR, reconf.nsepth)
+	CXZ = "cp %s/vulscan.nse %s" % (VPT, reconf.nsepth)	
+	print "[*] Checking if vulnscan is installed..."
+	if not os.path.isdir(VPT):	
+		if not os.path.isfile(TAR):
+			print "[+] Downloading %s.." % (TAR)
+			subprocess.call(URL, shell=True)
+			print "[+] Extracting %s to %s..." % (TAR, reconf.nsepth)
+			subprocess.call(TXZ, shell=True)
+			subprocess.call(CXZ, shell=True)
+			UPNSEDB = "nmap --script-updatedb"
+			subprocess.call(UPNSEDB, shell=True)
+	else:
+		print "[+] We're good: vulscan is installed" 

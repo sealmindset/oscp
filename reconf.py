@@ -9,7 +9,7 @@ def set_vars():
     global rsltpth
     global exampth
     global nmappth
-    global nmapscripts
+    global httpnse
     global wordlst
     global vulns
     global usrlst
@@ -17,6 +17,7 @@ def set_vars():
     global fzzlst
     global opth
     global olst
+    global nsepth
 
     config = ConfigParser.ConfigParser()
     config.read('recon.conf')
@@ -35,7 +36,8 @@ def set_vars():
     wordlst = config.get('wordlist','wordlst')
     vulns = config.get('vuln','vulns')
 
-    nmapscripts = config.get('nmapscripts','nmapscripts')
+    httpnse = config.get('nmapscripts','httpnse')
+    nsepth = config.get('nmapscripts','nsepth')
 
     usrlst = config.get('crack','usrlst')
     pwdlst = config.get('crack','pwdlst')

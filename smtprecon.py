@@ -9,14 +9,6 @@ if len(sys.argv) != 2:
     print "Usage: smtprecon.py <ip address>"
     sys.exit(0)
 
-#SMTPSCAN = "nmap -vv -sV -Pn -p 25,465,587 --script=smtp-vuln* %s" % (sys.argv[1])
-#results = subprocess.check_output(SMTPSCAN, shell=True)
-
-#f = open("rsltpth/smtpnmapresults.txt", "a")
-#f.write(results)
-#f.close
-
-
 print "INFO: Trying SMTP Enum on " + sys.argv[1]
 names = open(fzzlst, 'r')
 for name in names:
@@ -32,4 +24,3 @@ for name in names:
     if (("250" in result) or ("252" in result) and ("Cannot VRFY" not in result)):
 	print "[*] SMTP VRFY Account found on " + sys.argv[1] + ": " + name.strip()	
     s.close()
-

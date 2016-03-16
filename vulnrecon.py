@@ -16,6 +16,35 @@ if len(sys.argv) != 2:
 
 ip_address = sys.argv[1].strip()
 
+def opnPORTS(ip_address):
+   try:
+        fnmap = "%s/%s.nmap" % (reconf.exampth, ip_address)
+        print "\033[1;31m [!] \033[0;m Parsing %s for identifying open ports" % (fnmap)
+        if os.path.isfile(fnmap):
+                CATS = "cat %s | grep open | cut -d'/' -f1 | sort -h | tr '\n' ','" % (fnmap)
+                results = subprocess.check_output(CATS, shell=True)
+                results = results.rstrip(',')
+        else:
+                print "\033[1;38m [!] \033[0;m %s is missing.  Run nmap with the -oA option" % (fnmap)
+        return results
+   except:
+        pass
+
+def vulnCHK(ip_address):
+   try:
+        oprts = opnPORTS(ip_address)
+        if not re.search('Warning', oprts):
+                VCHK = "nmap -sV -vv -Pn -n -p %s --script vuln --script-args=unsafe=1 -oA '%s/%s_vuln' %s" % (oprts, reconf.exampth, ip_address, ip_address)
+                print "[+] Executing - %s" % (VCHK)
+        else:
+                VCHK = "nmap -sV -vv -Pn -n --script vuln --script-args=unsafe=1 -oA '%s/%s_vuln' %s" % (reconf.exampth, ip_address, ip_address)
+                print "[+] Executing - %s" % (VCHK)
+
+        print "\033[1;33m[*]\033[0;m Running general vuln scans for " + ip_address
+        subprocess.call(VCHK, shell=True)
+   except:
+        pass
+
 def test_patterns(text, patterns=[]):
     # Look for each pattern in the text and print the results
     for pattern in patterns:
@@ -56,6 +85,7 @@ def ssploit(prod,ver,os):
 	except:
     		print "[!]: No exploits found for %s %s" % (prod, ver) 
 
+vulnCHK(ip_address)
 
 xmlfile = "%s/%s.xml" % (reconf.exampth, ip_address)
 with open (xmlfile, 'rt') as file: 
@@ -69,7 +99,7 @@ if  _host.os.osmatches:
         for osmatch in _host.os.osmatches:
                 os = osmatch.name
 else:
-        os = "unknown" 
+        os = "Linux" 
 
 if re.match('Microsoft|Windows', os):
     for services in _host.services: 
