@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from xml.etree import ElementTree
+import xml.etree.ElementTree
 from libnmap.parser import NmapParser
 import subprocess
 from subprocess import *
@@ -8,8 +8,6 @@ import os
 import re
 import reconf
 from reconf import *
-import time
-from functools import wraps
 
 if len(sys.argv) != 2:
     print "Usage: deeprecon.py <ip address>"
@@ -17,25 +15,12 @@ if len(sys.argv) != 2:
 
 ip_address = sys.argv[1].strip()
 
-def fn_timer(function):
-    @wraps(function)
-    def function_timer(*args, **kwargs):
-        t0 = time.time()
-        result = function(*args, **kwargs)
-        t1 = time.time()
-        print ("Total time running %s: %s seconds" %
-               (function.func_name, str(t1-t0))
-               )
-        return result
-    return function_timer
-
 def chkfolders():
     dpths = [reconf.rootpth,reconf.labpath,reconf.rsltpth,reconf.exampth,reconf.nmappth]
     for dpth in dpths:
         if not os.path.exists(dpth):
                 os.makedirs(dpth)
 
-@fn_timer
 def multProc(targetin, scanip, port):
     jobs = []
     p = multiprocessing.Process(target=targetin, args=(scanip,port))
@@ -57,41 +42,45 @@ def searchsploitEnum(ip_address):
     return
 
 def httpEnum(ip_address, port):
-    print "INFO: Detected http on %s:%s" % (ip_address, port)
-    print "INFO: Performing nmap web script scan for %s:%s" % (ip_address, port) 
-    HTTPSCAN = "nmap -sV -Pn -n -vv -p %s --script=%s -oN %s/%s_http.nmap %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
+    print "INFO: Gathering additional HTTP information %s:%s" % (ip_address, port)
+    HTTPSCAN = "nmap -Pn -n -vv -sC -p %s --script=%s -oA %s/%s_http %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCAN, shell=True)
-    #DIRBUST = "./dirbust.py http://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
-    #subprocess.call(DIRBUST, shell=True)
-    #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
-    return
 
 def httpsEnum(ip_address, port):
-    print "INFO: Detected https on %s:%s" % (ip_address, port)
-    print "INFO: Performing nmap web script scan for %s:%s" % (ip_address, port) 
-    HTTPSCANS = "nmap -sV -Pn -n -vv -p %s --script=%s -oX %s/%s_https.nmap %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
+    print "INFO: Gathering additional HTTPS information %s:%s" % (ip_address, port)
+    HTTPSCANS = "nmap -Pn -n -vv -sC -p %s --script=%s -oA %s/%s_https %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCANS, shell=True)
-    #DIRBUST = "./dirbust.py https://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
-    #subprocess.call(DIRBUST, shell=True)
-    #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
-    return
+
+def hgreEnum(ip_address, port):
+    print "INFO: Searching for sensitive information on %s:%s" % (ip_address, port)
+    HTTPGREP = "nmap -Pn -n -vv -oA %s/%s_httpgrep -p %s %s --script http-grep --script-args http-grep.builtins" % (reconf.exampth, ip_address, port, ip_address)
+    results = subprocess.check_output(HTTPGREP, shell=True)
+
+def niktoEnum(ip_address, port)
+    print "INFO: Performing Nikto scan on %s:%s" % (ip_address, port)
+    NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
+    results = subprocess.check_output(NIKTOSCAN, shell=True)
+
+def dirbEnum(ip_address):
+    print "INFO: Brute force dictionary attack for directories on %s" % (ip_address)
+    DIRBUST = "./dirbust.py %s" % (ip_address) 
+    subprocess.call(DIRBUST, shell=True)
 
 def oracleEnum(ip_address, port):
     print "INFO: Detected Oracle on %s:%s" % (ip_address, port)
-    print "INFO: Performing nmap mssql script scan for %s:%s" % (ip_address, port)
-    ORACLESCAN = "nmap -vv -sV -Pn -p %s --script=oracle-enum-users,oracle-sid-brute -oX %s/%s_oracle.xml %s" % (port, reconf.exampth, ip_address, ip_address)
+    ORACLESCAN = "nmap -vv -Pn -p %s --script=oracle-enum-users,oracle-sid-brute -oA %s/%s_oracle.xml %s" % (port, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(ORACLESCAN, shell=True)
 
 def mssqlEnum(ip_address, port):
     print "INFO: Detected MS-SQL on %s:%s" % (ip_address, port)
     print "INFO: Performing nmap mssql script scan for %s:%s" % (ip_address, port)
-    MSSQLSCAN = "nmap -vv -sV -Pn -p %s --script=ms-sql-info,ms-sql-config,ms-sql-dump-hashes --script-args=mssql.instance-port=1433,smsql.username-sa,mssql.password-sa -oX %s/%s_mssql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
+    MSSQLSCAN = "nmap -vv -Pn -p %s --script=ms-sql-info,ms-sql-config,ms-sql-dump-hashes --script-args=mssql.instance-port=1433,smsql.username-sa,mssql.password-sa -oA %s/%s_mssql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(MSSQLSCAN, shell=True)
 
 def mysqlEnum(ip_address, port):
     print "INFO: Detected MySQL on %s:%s" % (ip_address, port)
     print "INFO: Performing nmap mssql script scan for %s:%s" % (ip_address, port)
-    MYSQLSCAN = "nmap -vv -sV -Pn -p %s --script=mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 -oX %s/%s_mysql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
+    MYSQLSCAN = "nmap -vv -Pn -p %s --script=mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 -oA %s/%s_mysql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(MYSQLSCAN, shell=True)
 
 def sshEnum(ip_address, port):
@@ -138,17 +127,52 @@ def altOSEnum(ip_address):
     rsltarray = results.split('\n')
     for line in rsltarray:
         if re.search('Running',line):
-                if re.search('GUESSING',line):
-                        os = line.split(':')[1].strip()
-                else:
-                        os = line.split(':')[1].strip()
-    return os
+                return line.split(':')[1].strip()
+
+def opnPORTS(ip_address):
+   try:
+        fnmap = "%s/%s.nmap" % (reconf.exampth, ip_address)
+        print "\033[1;31m [!] \033[0;m Parsing %s for identifying open ports" % (fnmap)
+        if os.path.isfile(fnmap):
+                CATS = "cat %s | grep open | cut -d'/' -f1 | sort -h | tr '\n' ','" % (fnmap)
+                results = subprocess.check_output(CATS, shell=True)
+                results = results.rstrip(',')
+        else:
+                print "\033[1;38m [!] \033[0;m %s is missing.  Run nmap with the -oA option" % (fnmap)
+        return results
+   except:
+        pass
+
+def vulnCHK(ip_address):
+   oprts = opnPORTS(ip_address)
+   print "\033[1;31m [!] \033[0;m Ports found: %s " % (oprts)
+   if oprts == "":
+   	VCHK = "nmap -sV -vv -A -sC -Pn -n --script vuln --script-args=unsafe=1 -oA '%s/%s_vuln' %s" % (reconf.exampth, ip_address, ip_address)
+   else:
+   	VCHK = "nmap -sV -vv -A -sC -Pn -n -p %s --script vuln --script-args=unsafe=1 -oA '%s/%s_vuln' %s" % (oprts, reconf.exampth, ip_address, ip_address)
+   print "[+] Executing - %s" % (VCHK)
+   print "\033[1;33m[*]\033[0;m Running general vuln scans for " + ip_address
+   subprocess.call(VCHK, shell=True)
+
+def exploitCHK(ip_address):
+   oprts = opnPORTS(ip_address)
+   print "\033[1;31m [!] \033[0;m Ports found: %s " % (oprts)
+   if oprts == "":
+   	ECHK = "nmap -sV -vv -Pn -n --script exploit --script-args=unsafe=1 -oA '%s/%s_exploit' %s" % (reconf.exampth, ip_address, ip_address)
+   else:
+   	ECHK = "nmap -sV -vv -Pn -n -p %s --script exploit --script-args=unsafe=1 -oA '%s/%s_exploit' %s" % (oprts, reconf.exampth, ip_address, ip_address)
+   print "[+] Executing - %s" % (ECHK)
+   print "\033[1;33m[*]\033[0;m Attempting to exploit " + ip_address
+   subprocess.call(ECHK, shell=True)
 
 if __name__=='__main__':
+    
+    vulnCHK(ip_address)
+    exploitCHK(ip_address)
 
+    print "[*] Parsing %s/%s.xml" % (reconf.exampth, ip_address)
     xmlfile = "%s/%s.xml" % (reconf.exampth, ip_address)
-    with open (xmlfile, 'rt') as file: 
-    	tree = ElementTree.parse(file)
+    tree = xml.etree.ElementTree.parse(xmlfile)
 
     rep = NmapParser.parse_fromfile(xmlfile)
     for _host in rep.hosts:
@@ -163,15 +187,15 @@ if __name__=='__main__':
 
     try: 
     	for osmatch in _host.os.osmatches:
-    		os = osmatch.name
-    except IOError:	
-	os = 'Microsoft'
+    		osys = osmatch.name
+    except IOError:
+        osys = 'Microsoft'
     else:
-	os = altOSEnum(ip_address)
+        osys = altOSEnum(ip_address)
 
-    print "OS: %s" % (os)
+    print "OS: %s" % (osys)
 
-    if 'Microsoft' in os:
+    if re.match('Microsoft', osys) and osys != "":
 	cnt=0
     	for services in _host.services:
 		print
@@ -197,6 +221,7 @@ if __name__=='__main__':
 		if not re.search('https',serv[cnt]) and re.search('http',serv[cnt]):
 			print "[+] Running httpEnum %s, %s" % (ip_address, services.port)
 			httpEnum(ip_address, services.port)
+			hgreEnum(ip_address, services.port)
 		# 135
 		if re.search('msrpc', serv[cnt]):
 			print "[+] Running rpcEnum %s, %s" % (ip_address, services.port)
@@ -210,9 +235,10 @@ if __name__=='__main__':
 			print "[+] Running snmpEnum %s, %s" % (ip_address, services.port)
 			snmpEnum(ip_address, services.port)
 		# 443
-		if re.search('https',serv[cnt]):
+		if re.search('https',serv[cnt]) or re.search('ssl\/http',serv[cnt]):
 			print "[+] Running httpsEnum %s, %s" % (ip_address, services.port)
 			httpsEnum(ip_address, services.port)
+			hgreEnum(ip_address, services.port)
 		# 445
 		if re.search('microsoft-ds', serv[cnt]):
 			print "[+] Running smbEnum %s, %s" % (ip_address, services.port)
@@ -230,16 +256,17 @@ if __name__=='__main__':
 			print "[+] Running mysqlEnum %s, %s" % (ip_address, services.port)
 			mysqlEnum(ip_address, services.port)
 		cnt += 1
-   	print "[+] Running searchsploitEnum %s" % (ip_address)
-   	searchsploitEnum(ip_address)
 	print
    	print "INFO: Deep scan completed for " + ip_address
-	cnt
     else:
-	print "OS Unknown: %s" % (os)
+	print "OS Unknown: %s" % (osys)
  
-if 'Linux' in os:
-    cnt = 0
-    for services in _host.services: 
-        print "Port: "'{0: <5}'.format(services.port), "State: "'{0: <5}'.format(services.state), "Protocol: "'{0: <2}'.format(services.protocol),"Product: "'{0: <15}'.format(list_product[cnt]),"Version: "'{0: <10}'.format(list_version[cnt]),"ExtrInfo: "'{0: <10}'.format(list_extrainf[cnt])
-        cnt = cnt + 1
+
+    if re.match('Linux', osys) and osys != "":
+	cnt = 0
+	for services in _host.services:
+		print "Port: "'{0: <5}'.format(services.port), "State: "'{0: <5}'.format(services.state), "Protocol: "'{0: <2}'.format(services.protocol), "Service: "'{0:<10}'.format(serv[cnt])
+	cnt += 1
+    else:
+	print "OS: Unknown %s" % (osys)
+
