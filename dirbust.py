@@ -12,7 +12,7 @@ from functools import wraps
 import argparse
 import ipaddr
 
-parser = argparse.ArgumentParser(description='Run a short or full dirb scan', prefix_chars='-+/',)
+parser = argparse.ArgumentParser(description='Run a short or verbose dirb scan', prefix_chars='-+/',)
 
 parser.add_argument('-ip', action='store', required=True, help='IP Address to be assessed')
 parser.add_argument('--filename', action='store', required=False, default='common.txt', help='Direct dirb to use this file')
@@ -75,6 +75,7 @@ def dirbEnum(prot, ip_address, port):
 	except:
 		pass
 
+@fn_timer
 def dirbBlast(prot, ip_address, port):
 	found = []
 	url = "%s://%s:%s" % (prot, ip_address, port)
@@ -85,7 +86,7 @@ def dirbBlast(prot, ip_address, port):
 	    for filename in os.listdir(folder):
 		fn = "%s/%s" % (folder, filename)
 		if os.path.isfile(fn):
-			print "\033[0;30m[ %s of %s ] Parsing thru %s\033[0;m" % (i, tfiles, filename)
+			print "\033[0;30m[ %s of %s ] Parsing thru %s\%s\033[0;m" % (i, tfiles, folder, filename)
 		DIRBSCAN = "dirb %s %s/%s -S -r" % (url, reconf.wordlst, filename)
 		try:
 			results = subprocess.check_output(DIRBSCAN, shell=True)
@@ -114,7 +115,6 @@ if __name__=='__main__':
     with open(fnmap, 'r') as searchfile:
 	for line in searchfile:
 		if 'open' in line and re.search('http|ssl/http|https', line):
-			#print line
 			port = re.split('\s+', line)[0]
 			port = re.split('\/', port)[0].strip()
 			prot = re.split('\s+', line)[2].strip()
