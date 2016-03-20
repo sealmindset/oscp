@@ -45,11 +45,15 @@ def httpEnum(ip_address, port):
     print "INFO: Gathering additional HTTP information %s:%s" % (ip_address, port)
     HTTPSCAN = "nmap -Pn -n -vv -sC -p %s --script=%s -oA %s/%s_http %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCAN, shell=True)
+    HTTPHDRS = "nmap -Pn -n -vv -p %s --script=%s -oA %s/%s_%s_httpheader %s" % (port, 'http-headers', reconf.exampth, ip_address, port, ip_address)
+    results = subprocess.check_output(HTTPHDRS, shell=True)
 
 def httpsEnum(ip_address, port):
     print "INFO: Gathering additional HTTPS information %s:%s" % (ip_address, port)
     HTTPSCANS = "nmap -Pn -n -vv -sC -p %s --script=%s -oA %s/%s_https %s" % (port, reconf.httpnse, reconf.exampth, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCANS, shell=True)
+    HTTPHDRS = "nmap -Pn -n -vv -p %s --script=%s -oA %s/%s_%s_httpheader %s" % (port, 'http-headers', reconf.exampth, ip_address, port, ip_address)
+    results = subprocess.check_output(HTTPHDRS, shell=True)
 
 def hgreEnum(ip_address, port):
     print "INFO: Searching for sensitive information on %s:%s" % (ip_address, port)

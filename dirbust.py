@@ -11,6 +11,8 @@ import time
 from functools import wraps
 import argparse
 import ipaddr
+import nmapxml
+from nmapxml import *
 
 parser = argparse.ArgumentParser(description='Run a short or verbose dirb scan', prefix_chars='-+/',)
 
@@ -26,11 +28,7 @@ except:
         print "Try again..."
         sys.exit()
 
-folders = [reconf.wordlst, reconf.vulns]
-
-twlst = len([name for name in os.listdir(reconf.wordlst) if os.path.isfile(os.path.join(reconf.wordlst, name))])
-tvlst = len([name for name in os.listdir(reconf.vulns) if os.path.isfile(os.path.join(reconf.vulns, name))])
-tfiles = twlst + tvlst
+tfiles = len([name for name in os.listdir(reconf.wordlst) if os.path.isfile(os.path.join(reconf.wordlst, name))])
 
 def hms(seconds):
     m, s = divmod(seconds, 60)
@@ -56,15 +54,18 @@ def multProc(targetin, scanip, port):
     p.start()
     return
 
-@fn_timer
-def dirbEnum(prot, ip_address, port):
+def dirbEnum(prot, ip_address, port, igncap, srvr):
 	found = []
 	url = "%s://%s:%s" % (prot, ip_address, port)
 	filename = args.filename 
 	print "\033[0;33m[>]\033[0;m Running dirb scan for %s" % (url)
 	outfile = "%s/%s_%s_dirb.txt" % (reconf.rsltpth, ip_address, port)
-	DIRBSCAN = "dirb %s %s/%s -S -r" % (url, reconf.wordlst, filename)
+	if igncap == True:
+		dirbargs = "-i -S -r -w"
+	elif igncap == False:
+		dirbargs = "-S -r -w"
 	try:
+		DIRBSCAN = "dirb %s %s/%s %s" % (url, reconf.wordlst, filename, dirbargs)
 		results = subprocess.check_output(DIRBSCAN, shell=True)
 		resultarr = results.split("\n")
 		for line in resultarr:
@@ -76,18 +77,24 @@ def dirbEnum(prot, ip_address, port):
 		pass
 
 @fn_timer
-def dirbBlast(prot, ip_address, port):
+def dirbBlast(prot, ip_address, port, igncap, srvr):
 	found = []
 	url = "%s://%s:%s" % (prot, ip_address, port)
 	print "\033[0;33m[>]\033[0;m Running dirb scan for %s" % (url)
 	outfile = "%s/%s_%s_dirb.txt" % (reconf.rsltpth, ip_address, port)
+	extlst = "%s/%s" % (reconf.wordlst, 'extensions_common.txt')
+	if igncap == True:
+		dirbargs = "-i -f -S -w"
+	elif igncap == True:
+		dirbargs = "-f -S -w"
+	 
 	i = 1
-	for folder in folders:
-	    for filename in os.listdir(folder):
-		fn = "%s/%s" % (folder, filename)
+	for filename in os.listdir(reconf.wordlst):
+		fn = "%s/%s" % (reconf.wordlst, filename)
 		if os.path.isfile(fn):
-			print "\033[0;30m[ %s of %s ] Parsing thru %s\%s\033[0;m" % (i, tfiles, folder, filename)
-		DIRBSCAN = "dirb %s %s/%s -S -r" % (url, reconf.wordlst, filename)
+			print "\033[0;30m[ %s of %s ] Parsing thru %s/%s\033[0;m" % (i, tfiles, reconf.wordlst, filename)
+		DIRBSCAN = "dirb %s %s/%s,%s/%s %s -x %s" % (url, reconf.wordlst, filename, reconf.vulns, srvr, dirbargs, extlst)
+		print DIRBSCAN
 		try:
 			results = subprocess.check_output(DIRBSCAN, shell=True)
 			resultarr = results.split("\n")
@@ -100,6 +107,12 @@ def dirbBlast(prot, ip_address, port):
 		except:
 			pass 
 
+def typeHDR(pattern):
+        files = os.listdir(reconf.vulns)
+        for file in files:
+                if file.find(pattern) != -1:
+                        return file
+
 def vpnstatus():
    return int(os.popen('ifconfig tap0 | wc -l').read().split()[0])
 
@@ -108,6 +121,17 @@ if __name__=='__main__':
     if not vpnstatus() > 1:
         print "You forgot to connect to the lab"
         sys.exit()
+
+    xml_path = "%s/%s.xml" % (reconf.exampth, ip_address)
+    info = minidom.parse(xml_path)
+    opsys = nmapxml.get_OS(info)
+    
+    print "\033[1;33m[*]\033[0;m Operating System is %s" % (opsys)
+
+    if re.search(r'Windows|Microsoft', opsys):
+	igncap = True 
+    else:
+	igncap = False 
 
     print "\033[1;32m[*]\033[0;m Parsing %s/%s.nmap" % (reconf.exampth, ip_address)
 
@@ -120,6 +144,15 @@ if __name__=='__main__':
 			prot = re.split('\s+', line)[2].strip()
 			prot = re.split('\?', prot)[0].strip()
 			if 'ssl/http' in line: prot = 'https'
-			
-			if args.v is False: dirbEnum(prot, ip_address, port)
-			if args.v is True: dirbBlast(prot, ip_address, port)
+
+			wbxml = "%s/%s_%s_httpheader.xml" % (reconf.exampth, ip_address, port)
+			info = minidom.parse(wbxml)
+			protocol, port_number, service, product, version = nmapxml.generic_Info(info)
+
+			vulfiles = ['apache','cgis','domino','fatwire','hpsmh','iis','jboss','jrun','oracle','sap','sunas','tomcat','weblogic','axis','coldfusion','frontpage','hyperion','iplanet','jersey','netware','ror','sharepoing','test','vignette','websphere']
+			for file in vulfiles:
+				if re.search(file, product, re.IGNORECASE):
+					srvr = typeHDR(file)
+   
+			if args.v is False: dirbEnum(prot, ip_address, port, igncap, srvr)
+			if args.v is True: dirbBlast(prot, ip_address, port, igncap, srvr)

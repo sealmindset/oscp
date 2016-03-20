@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from xml.etree import ElementTree
 from libnmap.parser import NmapParser
 import subprocess

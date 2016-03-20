@@ -11,6 +11,11 @@ import reconf
 from reconf import *
 import time
 from functools import wraps
+
+def hms(seconds):
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return("%d:%02d:%02d:" % (h, m, s))
  
 def fn_timer(function):
     @wraps(function)
@@ -18,19 +23,12 @@ def fn_timer(function):
         t0 = time.time()
         result = function(*args, **kwargs)
         t1 = time.time()
-        print ("Total time running %s: %s seconds" %
-               (function.func_name, str(t1-t0))
-               )
+        print ("Total time running %s: %s" %
+               (function.func_name, hms(t1-t0))
+              )
         return result
     return function_timer
 
-def chkfolders():
-    dpths = [reconf.rootpth,reconf.labpath,reconf.rsltpth,reconf.exampth,reconf.nmappth]
-    for dpth in dpths:
-        if not os.path.exists(dpth):
-                os.makedirs(dpth)
-
-@fn_timer
 def multProc(targetin, scanip, port):
     jobs = []
     p = multiprocessing.Process(target=targetin, args=(scanip,port))
@@ -40,50 +38,36 @@ def multProc(targetin, scanip, port):
 
 def TCPScan(ip_address):
    ip_address = ip_address.strip()
-   TCPSCAN = "nmap -sV -vv -Pn -A -sC -sS -T4 -p- -oA '%s/%s' %s"  % (reconf.exampth, ip_address, ip_address)
+   TCPSCAN = "nmap -sV -vv -Pn -O -sS -T4 -p- -oA '%s/%s' %s"  % (reconf.exampth, ip_address, ip_address)
    print "\033[1;33m[*]\033[0;m Running general TCP nmap scans for " + ip_address
    subprocess.check_output(TCPSCAN, shell=True)
 
 def UDPScan(ip_address):
    ip_address = ip_address.strip()
-   UDPSCAN = "nmap -sV -vv -Pn -A -sC -sU -T4 --top-ports 200 -oA '%s/%sU' %s" % (reconf.exampth, ip_address, ip_address)
+   UDPSCAN = "nmap -sV -vv -Pn -O -sU -T4 --top-ports 20 -oA '%s/%sU' %s" % (reconf.exampth, ip_address, ip_address)
    print "\033[1;33m[*]\033[0;m Running general UDP nmap scans for " + ip_address
    subprocess.check_output(UDPSCAN, shell=True)
 
-def opnPORTS(ip_address):
-   try:
-        fnmap = "%s/%s.nmap" % (reconf.exampth, ip_address)
-        print "\033[1;31m [!] \033[0;m Parsing %s for identifying open ports" % (fnmap)
-        if os.path.isfile(fnmap):
-                CATS = "cat %s | grep open | cut -d'/' -f1 | sort -h | tr '\n' ','" % (fnmap)
-                results = subprocess.check_output(CATS, shell=True)
-                results = results.rstrip(',')
-        else:
-                print "\033[1;38m [!] \033[0;m %s is missing.  Run nmap with the -oA option" % (fnmap)
-        return results
-   except:
-        pass
+def dualScan(ip_address):
+   TCPScan(ip_address)
+   #UDPScan(ip_address)
 
-def vulnCHK(ip_address):
-   try:
-        oprts = opnPORTS(ip_address)
-        if not re.search('Warning', oprts):
-                VCHK = "nmap -sV -vv -Pn -n -p %s --script vuln --script-args=unsafe=1 -oA '%s/%s_vuln' %s" % (oprts, reconf.exampth, ip_address, ip_address)
-                print "[+] Executing - %s" % (VCHK)
-        else:
-                VCHK = "nmap -sV -vv -Pn -n --script vuln --script-args=unsafe=1 -oA '%s/%s_vuln' %s" % (reconf.exampth, ip_address, ip_address)
-                print "[+] Executing - %s" % (VCHK)
+@fn_timer
+def deepScan(ip_address):
+   DSCAN = "./deepscan.py %s" % (ip_address)
+   print "\033[1;33m[*]\033[0;m Digging deeper into " + ip_address
+   subprocess.call(DSCAN, shell=True)
 
-        print "\033[1;33m[*]\033[0;m Running general vuln scans for " + ip_address
-        subprocess.call(VCHK, shell=True)
-   except:
-        pass
+def chkfolders():
+    dpths = [reconf.rootpth,reconf.labpath,reconf.rsltpth,reconf.exampth,reconf.nmappth]
+    for dpth in dpths:
+        if not os.path.exists(dpth):
+                os.makedirs(dpth)
 
 def createList(ipadr):
    nm = nmap.PortScanner()
    args = "-sP -PS -n -oG %s " % (reconf.opth)
    nm.scan(ipadr,arguments=args)
-
    fo = open(reconf.olst,"w")
    with open(reconf.opth) as input:
         for line in input:
@@ -91,12 +75,10 @@ def createList(ipadr):
                 if re.match('[a-zA-Z]',line[1]) is None:
                         fo.write("%s\n" % (line[1]))
    fo.close()
-   return
 
 def vpnstatus():
-        return int(os.popen('ifconfig tap0 | wc -l').read().split()[0])
+   return int(os.popen('ifconfig tap0 | wc -l').read().split()[0])
 
-# grab the discover scan results and start scanning up hosts
 if __name__=='__main__': 
    # Check if VPN to the Offsec lab is up
    if not vpnstatus() > 1:
@@ -110,13 +92,33 @@ if __name__=='__main__':
    createList(reconf.iprange)
 
    print "Intel Gathering"
+   jobs = []
    f = open(reconf.olst, 'r') 
    for scanip in f:
-       jobs = []
-       p = multiprocessing.Process(target=TCPScan, args=(scanip,))
+       p = multiprocessing.Process(target=dualScan, args=(scanip,))
        jobs.append(p)
-       p.start()
    f.close()
 
-for j in jobs:
-       j.join() 
+   for j in jobs:
+	j.start()
+
+   for j in jobs:
+       j.join()
+       print "%s.exitcode = %s" % (j.name, j.exitcode)
+
+'''
+   print "Deeper Dive"
+   jobs = []
+   f = open(reconf.olst, 'r') 
+   for scanip in f:
+       p = multiprocessing.Process(target=deepScan, args=(scanip,))
+       jobs.append(p)
+   f.close()
+
+   for j in jobs:
+	j.start()
+
+   for j in jobs:
+       j.join()
+       print "%s.exitcode = %s" % (j.name, j.exitcode)
+'''
