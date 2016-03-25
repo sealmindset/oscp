@@ -3,60 +3,41 @@
 import ftplib
 import os
 
-#------------constants------------------
-sites=[]
-sites.append(['your-server.com','user','password'])
-selected_site_index=0
-site= sites[selected_site_index]
-sub_dir= '' # '/sub-directory
+from ftplib import FTP
 
-file_report= "report.txt"
+def get_dirs_ftp(folder=""):
+    contents = ftp.nlst(folder)
+    folders = []
+    for item in contents:
+        if "." not in item:
+            folders.append(item)
+    return folders
 
-#-end------------constants---------------
+def get_all_dirs_ftp(folder=""):
+    dirs = []
+    new_dirs = []
 
-site_url= site[0]
-site_user= site[1]
-site_pass= site[2]
-report= os.path.join(os.path.curdir , file_report)
+    new_dirs = get_dirs_ftp(folder)
 
-ftp = ftplib.FTP(site_url)
-ftp.login(site_user, site_pass)
+    while len(new_dirs) > 0:
+        for dir in new_dirs:
+            dirs.append(dir)
+
+        old_dirs = new_dirs[:]
+        new_dirs = []
+        for dir in old_dirs:
+            for new_dir in get_dirs_ftp(dir):
+                new_dirs.append(new_dir)
+
+    dirs.sort()
+    return dirs
 
 
-def clear_file_report():
-    if os.path.exists (report):
-        print "Removing the old report file"
-        os.remove(report)
-    else:
-        print "Creating a new report file"
+host ="your host"
+user = "user"
+password = "password"
 
-    append("FILE LIST") 
-
-def append(text, ):
-    if os.path.exists (report):
-        f = open(report, "a")
-    else:
-        f = open(report, "w")
-    f.write ("%s\n"%text)
-    f.close()
-
-def process():
-    clear_file_report()
-    
-    files = []
-
-    try:
-        files = ftp.nlst(sub_dir)
-            
-    except ftplib.error_perm, resp:
-        if str(resp) == "550 No files found":
-            append("")
-        else:
-            append(resp)
-            
-    for f in files:
-        print "Writing:%s" % f
-        append(f)
-
-if __name__ == "__main__":
-    process()
+print("Connecting to {}".format(host))
+ftp = FTP(host)
+ftp.login(user, password)
+print("Connected to {}".format(host))
