@@ -48,11 +48,8 @@ f = open(outfile, 'w')
 if anonLogin(ip_address):
 	ftp = ftputil.FTPHost(ip_address, "anonymous", "a@a.com")
 else:
-	if os.path.isfile("%s/%s_ftp_hydra.txt" % (reconf.rsltpth, ip_address)):
-		
-	else:
-		usern, password = bruteLogin(ip_address)
-		ftp = ftputil.FTPHost(ip_address, "anonymous", "a@a.com")
+	usern, password = bruteLogin(ip_address)
+	ftp = ftputil.FTPHost(ip_address, "anonymous", "a@a.com")
 try:
     recursive = ftp.walk("/",topdown=True,onerror=None)
     for root,dirs,files in recursive:

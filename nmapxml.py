@@ -19,6 +19,14 @@ def get_IP_Address(info):
 
         return(ip_address)
 
+def get_All_IP(info):
+	info_detail = info.getElementsByTagName("address")
+	ipaddrs=[]
+	for address in info_detail:
+        	if(address.getAttribute("addrtype") == "ipv4"):
+                	ipaddrs.append(address.getAttribute("addr").encode('ascii'))
+	return ','.join(ipaddrs)
+
 def get_FQDN(info):
         fqdn = str()
         info_detail = info.getElementsByTagName("hostname")

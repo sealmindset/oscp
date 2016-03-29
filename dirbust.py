@@ -14,12 +14,10 @@ import ipaddr
 import nmapxml
 from nmapxml import *
 
-parser = argparse.ArgumentParser(description='Run a short or verbose dirb scan', prefix_chars='-+/',)
-
+parser = argparse.ArgumentParser(description='Run a short or verbose dirb scan')
 parser.add_argument('-ip', action='store', required=True, help='IP Address to be assessed')
-parser.add_argument('--filename', action='store', required=False, default='common.txt', help='Direct dirb to use this file')
-parser.add_argument('-v', action='store_false', default=None, help='Less verbose')
-parser.add_argument('+v', action='store_true', default=None, help='Verbose scan')
+parser.add_argument('-s', action='store_true', required=False, help='Quick Scan')
+parser.add_argument('-ss', action='store_true', required=False, help='Quicker Scan')
 
 args = parser.parse_args()
 try:
@@ -27,8 +25,6 @@ try:
 except:
         print "Try again..."
         sys.exit()
-
-tfiles = len([name for name in os.listdir(reconf.wordlst) if os.path.isfile(os.path.join(reconf.wordlst, name))])
 
 def hms(seconds):
     m, s = divmod(seconds, 60)
@@ -54,31 +50,15 @@ def multProc(targetin, scanip, port):
     p.start()
     return
 
-def dirbEnum(prot, ip_address, port, igncap, srvr):
-	found = []
-	url = "%s://%s:%s" % (prot, ip_address, port)
-	filename = args.filename 
-	print "\033[0;33m[>]\033[0;m Running dirb scan for %s" % (url)
-	outfile = "%s/%s_%s_dirb.txt" % (reconf.rsltpth, ip_address, port)
-	if igncap == True:
-		dirbargs = "-i -S -r -w"
-	elif igncap == False:
-		dirbargs = "-S -r -w"
-	try:
-		DIRBSCAN = "dirb %s %s/%s %s" % (url, reconf.wordlst, filename, dirbargs)
-		results = subprocess.check_output(DIRBSCAN, shell=True)
-		resultarr = results.split("\n")
-		for line in resultarr:
-			if re.match(r'\A[+]', line) or re.search(r'DIRECTORY', line):
-				print "[+] Found -> %s" % (line)
-				with open(outfile, 'a') as file:
-					file.write("%s\n" % line) 
-	except:
-		pass
-
 @fn_timer
 def dirbBlast(prot, ip_address, port, igncap, srvr):
+	'''
+	    prot = http or https
+	    igncap = -i
+	    srvr = vulns files
+        '''
 	found = []
+	dirbargs = ""
 	url = "%s://%s:%s" % (prot, ip_address, port)
 	print "\033[0;33m[>]\033[0;m Running dirb scan for %s" % (url)
 	outfile = "%s/%s_%s_dirb.txt" % (reconf.rsltpth, ip_address, port)
@@ -88,13 +68,26 @@ def dirbBlast(prot, ip_address, port, igncap, srvr):
 	elif igncap == True:
 		dirbargs = "-f -S -w"
 	 
+	if args.s is False and args.ss is False:
+		WORDLST = os.listdir(reconf.wordlst)
+		tfiles = len([name for name in os.listdir(reconf.wordlst) if os.path.isfile(os.path.join(reconf.wordlst, name))])
+	if args.s is True and args.ss is False:
+		WORDLST = reconf.moderlst.split(",")
+		tfiles = len(WORDLST)
+	if args.ss is True and args.s is False:
+		WORDLST = reconf.shortlst.split(",")
+		tfiles = len(WORDLST)
+
 	i = 1
-	for filename in os.listdir(reconf.wordlst):
+	for filename in WORDLST:
 		fn = "%s/%s" % (reconf.wordlst, filename)
+		if igncap == True:
+			dirbargs = "-i -f -S -w"
+		elif igncap == True:
+			dirbargs = "-f -S -w"
 		if os.path.isfile(fn):
 			print "\033[0;30m[ %s of %s ] Parsing thru %s/%s\033[0;m" % (i, tfiles, reconf.wordlst, filename)
-		DIRBSCAN = "dirb %s %s/%s,%s/%s %s -x %s" % (url, reconf.wordlst, filename, reconf.vulns, srvr, dirbargs, extlst)
-		print DIRBSCAN
+		DIRBSCAN = "dirb %s -a \"%s\" %s/%s %s -x %s" % (url, reconf.uagnt5, reconf.wordlst, filename, dirbargs, extlst)
 		try:
 			results = subprocess.check_output(DIRBSCAN, shell=True)
 			resultarr = results.split("\n")
@@ -113,6 +106,29 @@ def typeHDR(pattern):
                 if file.find(pattern) != -1:
                         return file
 
+def typeSRVR(ip_address, port):
+    wbxml = "%s/%s_%s_httpheader.xml" % (reconf.exampth, ip_address, port)
+    try:
+    	info = minidom.parse(wbxml)
+    	protocol, port_number, service, product, version = nmapxml.generic_Info(info)
+
+    	vulfiles = ['apache','cgis','domino','fatwire','hpsmh','iis','jboss','jrun','oracle','sap','sunas','tomcat','weblogic','axis','coldfusion','frontpage','hyperion','iplanet','jersey','netware','ror','sharepoing','test','vignette','websphere']
+    	for file in vulfiles:
+		if re.search(file, product, re.IGNORECASE):
+			srvr = typeHDR(file)
+			return(srvr)
+    except:
+	if os.path.isfile(wbxml):
+		print "Something broke...."
+	elif not os.path.isfile(wbxml):
+		print "%s doesn't seem to exists!" % (wbxml)
+		SNMAP = "nmap -sV -vv -Pn -n -p %s --script=http-headers -oA %s/%s_%s_httpheader %s" % (port, reconf.exampth, ip_address, port, ip_address)
+		print "Excuting %s" % (SNMAP)
+		subprocess.call(SNMAP, shell=True)
+		if os.path.isfile(wbxml):
+			typeSRVR(ip_address, port)
+	pass
+
 def vpnstatus():
    return int(os.popen('ifconfig tap0 | wc -l').read().split()[0])
 
@@ -123,16 +139,23 @@ if __name__=='__main__':
         sys.exit()
 
     xml_path = "%s/%s.xml" % (reconf.exampth, ip_address)
-    info = minidom.parse(xml_path)
-    opsys = nmapxml.get_OS(info)
-    
+    try:
+    	info = minidom.parse(xml_path)
+    	opsys = nmapxml.get_OS(info)
+    except:
+	if os.path.isfile(xml_path):
+		print "Something broke..."
+	else:
+		print "%s doesn't seem to exists!" % (xml_path)
+   	pass
+ 
     print "\033[1;33m[*]\033[0;m Operating System is %s" % (opsys)
 
     if re.search(r'Windows|Microsoft', opsys):
 	igncap = True 
     else:
 	igncap = False 
-
+    
     print "\033[1;32m[*]\033[0;m Parsing %s/%s.nmap" % (reconf.exampth, ip_address)
 
     fnmap = "%s/%s.nmap" % (reconf.exampth, ip_address)
@@ -144,15 +167,6 @@ if __name__=='__main__':
 			prot = re.split('\s+', line)[2].strip()
 			prot = re.split('\?', prot)[0].strip()
 			if 'ssl/http' in line: prot = 'https'
-
-			wbxml = "%s/%s_%s_httpheader.xml" % (reconf.exampth, ip_address, port)
-			info = minidom.parse(wbxml)
-			protocol, port_number, service, product, version = nmapxml.generic_Info(info)
-
-			vulfiles = ['apache','cgis','domino','fatwire','hpsmh','iis','jboss','jrun','oracle','sap','sunas','tomcat','weblogic','axis','coldfusion','frontpage','hyperion','iplanet','jersey','netware','ror','sharepoing','test','vignette','websphere']
-			for file in vulfiles:
-				if re.search(file, product, re.IGNORECASE):
-					srvr = typeHDR(file)
-   
-			if args.v is False: dirbEnum(prot, ip_address, port, igncap, srvr)
-			if args.v is True: dirbBlast(prot, ip_address, port, igncap, srvr)
+			srvr = typeSRVR(ip_address, port)
+			#print "%s %s %s %s" % (ip_address, igncap, port, srvr)
+			dirbBlast(prot, ip_address, port, igncap, srvr)

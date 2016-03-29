@@ -1,3 +1,4 @@
+root
 abe
 admin
 Administrator
@@ -15,6 +16,7 @@ gnats
 Guest
 HelpAssistant
 irc
+IEuser
 IUSR_BOB
 IUSR_ORACLE
 IUSR_SRV2
@@ -38,7 +40,6 @@ nick
 nobody
 postfix
 proxy
-root
 sqlusr
 sshd
 SUPPORT_388945a0

@@ -31,7 +31,7 @@ def multProc(targetin, scanip, port):
 def dnsEnum(ip_address, port):
     print "INFO: Detected DNS on %s %s" % (ip_address, port)
     if port.strip() == "53":
-       SCRIPT = "./dnsrecon.py %s" % (ip_address)# execute the python script     
+       SCRIPT = "./dnsrecon.py -ip %s" % (ip_address)     
        subprocess.call(SCRIPT, shell=True)
     return
 
@@ -67,7 +67,7 @@ def niktoEnum(ip_address, port)
 
 def dirbEnum(ip_address):
     print "INFO: Brute force dictionary attack for directories on %s" % (ip_address)
-    DIRBUST = "./dirbust.py %s" % (ip_address) 
+    DIRBUST = "./dirbust.py -ip %s -ss" % (ip_address) 
     subprocess.call(DIRBUST, shell=True)
 
 def oracleEnum(ip_address, port):
@@ -79,13 +79,26 @@ def mssqlEnum(ip_address, port):
     print "INFO: Detected MS-SQL on %s:%s" % (ip_address, port)
     print "INFO: Performing nmap mssql script scan for %s:%s" % (ip_address, port)
     MSSQLSCAN = "nmap -vv -Pn -p %s --script=ms-sql-info,ms-sql-config,ms-sql-dump-hashes --script-args=mssql.instance-port=1433,smsql.username-sa,mssql.password-sa -oA %s/%s_mssql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
-    results = subprocess.check_output(MSSQLSCAN, shell=True)
+    subprocess.call(MSSQLSCAN, shell=True)
 
 def mysqlEnum(ip_address, port):
     print "INFO: Detected MySQL on %s:%s" % (ip_address, port)
     print "INFO: Performing nmap mssql script scan for %s:%s" % (ip_address, port)
     MYSQLSCAN = "nmap -vv -Pn -p %s --script=mysql-audit,mysql-databases,mysql-dump-hashes,mysql-empty-password,mysql-enum,mysql-info,mysql-query,mysql-users,mysql-variables,mysql-vuln-cve2012-2122 -oA %s/%s_mysql.xml %s" % (port, reconf.exampth, ip_address, ip_address)
-    results = subprocess.check_output(MYSQLSCAN, shell=True)
+    subprocess.call(MYSQLSCAN, shell=True)
+    HYDRA = "hydra -L %s -P %s -f -t 1 -o %s/%s_mysqlhydra.txt %s mysql" % (reconf.usrlst, reconf.pwdlst, reconf.exampth, ip_address, ip_address)
+    results = subprocess.check_output(HYDRA, shell=True)
+    resultarr = results.split("\n")
+    for result in resultarr:
+    	if "login:" in result:
+        	print "[*] Valid ftp credentials found: " + result
+    MEDUSA = "medusa -L %s -P %s -f -t 1 -o %s/%s_mysqlhydra.txt %s mysql" % (reconf.usrlst, reconf.pwdlst, reconf.exampth, ip_address, ip_address)
+    results = subprocess.check_output(HYDRA, shell=True)
+    resultarr = results.split("\n")
+    for result in resultarr:
+    	if "login:" in result:
+        	print "[*] Valid ftp credentials found: " + result
+    
 
 def sshEnum(ip_address, port):
     print "INFO: Detected SSH on %s:%s" % (ip_address, port)

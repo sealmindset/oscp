@@ -80,7 +80,7 @@ if __name__=='__main__':
 	chkfolders()
 
 	print "[*] Checking if the required modules are installed..."
-	pkgs = ['xsser', 'python-libnmap', 'python-nmap']
+	pkgs = ['ftputil', 'pywinrm', 'xsser', 'python-libnmap', 'python-nmap', 'scapy']
 	fipkgs = [package.project_name for package in installed_packages]
 	for pkgname in pkgs:
 		if pkgname in fipkgs:		
