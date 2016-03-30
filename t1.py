@@ -28,22 +28,12 @@ except:
 
 ip_address = str(ip_address)
 
-def sanitizer():
-	try:
-		DEFUNC = "ps -ef | grep defunct | grep -v grep | cut -b8-20"
-		result = subprocess.check_out(DEFUNC, shell=True)
-		if result != "":
-			DEFUNC2 = "ps -ef | grep defunct | grep -v grep | cut -b8-20 | xargs kill -9"
-			subprocess.call(DEFUNC2, shell=True)
-	except:
-		pass
-
 def ftpLogin(ip_address, u, p):
         try:
                 ftp = ftputil.FTPHost(ip_address, u, p)
                 print "[+] %s - FTP using %s/%s is Permitted" % (ip_address, u, p)
                 return(ftp)
-        except Exception, e:
+        except OSError:
                 print "[-] %s - FTP using %s/%s is not allowed" % (ip_address, u, p)
                 pass 
 
@@ -57,14 +47,14 @@ except:
 	try:
 		if os.path.isfile('hydra.restore'):
 			os.remove('hydra.restore')		
-		subprocess.check_call(BRUTEUS, shell=True)
+		subprocess.call(BRUTEUS, shell=True)
 	except subprocess.CalledProcessError:
 		pass
 	except OSError:
 		pass
 finally:
 	print "\033[1;31m [!] \033[0;m Brute force of %s is completed." % (ip_address)
-	sanitizer
+	pass
 	
 
 try:
@@ -78,7 +68,6 @@ try:
 				ftp = ftpLogin(ip_address, u, p)
 				recursive = ftp.walk("/",topdown=True,onerror=None)
 				for root,dirs,files in recursive:
-					print "Recursive %s" % dirs
 					for dlst in dirs:
 						results = "%s\n" % dlst
 						if dlst != "":
@@ -91,5 +80,7 @@ try:
 							print results
 						if re.search(r'^(index)[.](htm|html|asp|php)', fname):
 							print "[+] Found default page %s at %s" % (fname, root)
+except Exception, e: 
+	pass
 finally:
-	sys.exit(0)	
+	print "\033[1;31m [!] \033[0;m Assessment Complete."
