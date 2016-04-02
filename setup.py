@@ -13,10 +13,10 @@ import reconf
 from reconf import *
 
 def chkfolders():
-    dpths = [reconf.rootpth,reconf.labpath,reconf.rsltpth,reconf.exampth,reconf.nmappth]
+    dpths = [reconf.rsltpth,reconf.exampth,reconf.nmappth]
     for dpth in dpths:
         if not os.path.exists(dpth):
-		print "[!] $s folder is missing, creating it now..." % (dpth)
+		print "[!] %s folder is missing, creating it now..." % (dpth)
                 os.makedirs(dpth)
 	else:
 		print "[+] We're okay, %s folder exists" % (dpth)
@@ -80,7 +80,7 @@ if __name__=='__main__':
 	chkfolders()
 
 	print "[*] Checking if the required modules are installed..."
-	pkgs = ['ftputil', 'pywinrm', 'xsser', 'python-libnmap', 'python-nmap', 'scapy']
+	pkgs = ['ftputil', 'pywinrm', 'xsser', 'python-libnmap', 'python-nmap', 'easyprocess']
 	fipkgs = [package.project_name for package in installed_packages]
 	for pkgname in pkgs:
 		if pkgname in fipkgs:		
