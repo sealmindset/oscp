@@ -22,11 +22,16 @@ nmap -nvv -Pn -n -sSV -T1 -p${ports} --version-intensity 9 -A -oA nmap_ft ${ipad
 nmap -e ${iface} -n -v -Pn -sV -sC -p${ports} --version-light -A -sS -oN ${wksp}/nmap_lt ${ipadd}
 nmap -e ${iface} -n -v -Pn -sV -sC --version-light -A -sU -oN ${wksp}/nmap_lu ${ipadd}
 
-#If Port 135/139/445
-nmap -v -p 135,445 --script=smb-check-vulns -oN ${wksp}/nmap_smb ${ipadd}
+#if Port 135 - RPC
+nmap -v -p 139,445 --script=rpc-check-vulns -oN ${wksp}/nmap_smb ${ipadd}
+
+#If Port 139/445
+nmap -v -p 139,445 --script=smb-check-vulns -oN ${wksp}/nmap_smb ${ipadd}
 enum4linux -v -a ${ipadd} >> ${wksp}/e4l_smb
 
 #If Port 80/443
+nmap --script http-enum -oN ${wksp}/nmap_http ${ipadd}
+
 curl -i ${ipadd}/robots.txt >> ${wksp}/curl_robots
 
 nikto -output ${wksp}/nikto -host ${ipadd}
