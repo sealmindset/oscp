@@ -97,7 +97,7 @@ def mysqlEnum(ip_address, port):
     resultarr = results.split("\n")
     for result in resultarr:
     	if "login:" in result:
-        	print "[*] Valid ftp credentials found: " + result
+        	print "[*] Valid credentials found: " + result
     
 
 def sshEnum(ip_address, port):
