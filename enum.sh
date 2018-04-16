@@ -80,7 +80,7 @@ for port in $(echo $ports | sed "s/,/ /g"); do
     nmap -n -Pn -p 135 -A -oN ${wksp}/nmap_${port} ${ipadd}
   fi
   if [ $port -eq 139 ] || [ $port -eq 445 ]; then
-    nmap -n -Pn -p $port -A -oN ${wksp}/nmap_${port} ${ipadd}
+    #nmap -n -Pn -p $port -A -oN ${wksp}/nmap_${port} ${ipadd}
     enum4linux -v -a ${ipadd} >> ${wksp}/e4l_${port}
     smbclient -N --list=${ipadd} >> ${wksp}/smb_${port}
   fi
