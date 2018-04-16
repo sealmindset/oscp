@@ -62,7 +62,7 @@ for port in $(echo $ports | sed "s/,/ /g"); do
     nmap -n -Pn -p ssh -sV -A -oN ${wksp}/nmap_ssh ${ipadd}
   fi
   if [ $port -eq 80 ] || [ $port -eq 443 ]; then
-    nmap -n -Pn --script http-enum -oN ${wksp}/nmap_${port} ${ipadd}
+    #nmap -n -Pn --script http-enum -oN ${wksp}/nmap_${port} ${ipadd}
 
     curl -i http://${ipadd}:${port}/robots.txt >> ${wksp}/curl_robots_${port}
 
