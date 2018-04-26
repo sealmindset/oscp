@@ -15,10 +15,7 @@ NC='\033[0m' # No Color
 wkip="IP$(echo ${ipadd} | tr -d '.')"
 wksp="${wks}/${wkip}"
 
-#nmap --iflist -oN nmap_iflist
-#netdiscover -r ${range} -i ${iface}
-#unicornscan -i ${iface} -I -mT ${ipadd}:a
-#unicornscan -i ${iface} -I -mU ${ipadd}:a
+arp-scan -l
 
 if [ -d $wksp ]; then
   echo "${GREEN} [*] ${NC} Workspace ${wksp} is ready."
@@ -55,6 +52,10 @@ if [ ! -f ${wksp}/nmap_lt ]; then
   #nmap ${iface} -n -Pn -sV -sC --version-light -A -sU -oN ${wksp}/nmap_lu ${ipadd}
 fi
 
+# Grab Banners
+echo "${GREEN} [*] ${NC} Grabbing Banners..."
+nmap -Pn -n -p ${ports} --script=banner-plus -oA ${wksp}/nmap_banner ${ipadd}
+
 # Run specialized scans
 for port in $(echo $ports | sed "s/,/ /g"); do 
   echo "${GREEN} [*] ${NC} Checking for anything interesting on ${port}."
@@ -87,4 +88,33 @@ for port in $(echo $ports | sed "s/,/ /g"); do
   if [ $port -eq 3306 ]; then
     nmap -n -Pn -p 3306 --script=mysql-enum -oN ${wksp}/nmap_${port} ${ipadd}
   fi
+    
+if [ ${port} -eq 8008 ]; then
+  echo "${GREEN} [*] ${NC} Get device information XML."
+  curl http://${ipadd}:8008/ssdp/device-desc.xml >> ${wksp}/curl_xml
+
+  echo "${GREEN} [*] ${NC} Get detailed device information json"
+  curl http://${ipadd}:8008/setup/eureka_info?options=detail >> ${wksp}/curl_json
+
+  echo "${GREEN} [*] ${NC} Scan for available wifi"
+  curl http://${ipadd}:8008/setup/scan_results >> ${wksp}/curl_wifi
+
+  echo "${GREEN} [*] ${NC} Get supported time zone"
+  curl http://${ipadd}:8008/setup/supported_timezones >> ${wksp}/curl_timezone
+
+  echo "${GREEN} [*] ${NC} Get information about current app"
+  curl -H “Content-Type: application/json” http://${ipadd}:8008/apps/YouTube -X GET >> ${wksp}/curl_currentapp
+
+#send youtube video to chromecast:
+#curl -H “Content-Type: application/json” http://${ipadd}:8008/apps/YouTube -X POST -d ‘v=oHg5SJYRHA0’
+
+#kill current running app:
+#curl -H “Content-Type: application/json” http://${ipadd}:8008/apps/YouTube -X DELETE
+
+#reboot the chromecast dongle:
+#curl -H “Content-Type: application/json” http://${ipadd}:8008/setup/reboot -d ‘{“params”:”now”}’ -X POST
+
+#factory default reset the chromecast dongle:
+#curl -H “Content-Type: application/json” http://${ipadd}:8008/setup/reboot -d ‘{“params”:”fdr”}’ -X POST
+fi
 done
