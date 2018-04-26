@@ -47,10 +47,14 @@ fi
 # Guess versions light
 if [ ! -f ${wksp}/nmap_lt ]; then
   echo "${GREEN} [*] ${NC} Identifying protocol versions of each TCP port (Light)."
-  #nmap ${iface} -n -Pn -sV -sC --open -p${ports} --version-light -A -sS -oN ${wksp}/nmap_lt ${ipadd}
+  nmap ${iface} -n -Pn -sV -sC --open -p${ports} --version-light -A -sS -oN ${wksp}/nmap_lt ${ipadd}
   echo "${GREEN} [*] ${NC} Identifying protocol versions of each UDP port (Light)."
-  #nmap ${iface} -n -Pn -sV -sC --version-light -A -sU -oN ${wksp}/nmap_lu ${ipadd}
+  nmap ${iface} -n -Pn -sV -sC --version-light -A -sU -oN ${wksp}/nmap_lu ${ipadd}
 fi
+
+# Guess version ALL
+echo "${GREEN} [*] ${NC} Identifying protocol versions of each TCP port (ALL)."
+nmap ${iface} -n --open -p${ports} --version-all -oN ${wksp}/nmap_version_all ${ipadd}
 
 # Grab Banners
 echo "${GREEN} [*] ${NC} Grabbing Banners..."
