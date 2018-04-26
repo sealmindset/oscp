@@ -52,7 +52,9 @@ fi
 
 # Guess version ALL
 echo "${GREEN} [*] ${NC} Identifying protocol versions of each TCP port (ALL)."
-nmap ${iface} -n --open -p${ports} --version-all -oN ${wksp}/nmap_version_all ${ipadd}
+nmap -e ${iface} -n --open -p${ports} --version-all -oN ${wksp}/nmap_version_all ${ipadd}
+echo "${GREEN} [*] ${NC} Identifying protocol versions of each TCP port (-sV)."
+nmap -e ${iface} -v -n --open -p${ports} -sV -oN ${wksp}/nmap_sV ${ipadd}
 
 # Grab Banners
 echo "${GREEN} [*] ${NC} Grabbing Banners..."
