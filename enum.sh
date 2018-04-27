@@ -12,10 +12,16 @@ GREEN='\033[0;32m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 
+if [ $# -eq 0 ]; then
+  echo "${RED} [!] Frogot something? ${NC} Need arguments, e.g.:"
+  echo "${NC} enum.sh eth0 10.3.1.162 10.3.1.162 /root/projects/"
+  exit
+fi
+
 wkip="IP$(echo ${ipadd} | tr -d '.')"
 wksp="${wks}/${wkip}"
 
-arp-scan -l
+#arp-scan -l
 
 if [ -d $wksp ]; then
   echo "${GREEN} [*] ${NC} Workspace ${wksp} is ready."
@@ -38,6 +44,11 @@ fi
 ports=$(cat ${wksp}/nmap_qt | grep portid | grep protocol=\"tcp\" | cut -d'"' -f4 | paste -sd ",")
 echo "${YELLOW} [!] ${NC} The following TCP Ports are open: ${WHITE} ${ports}"
 
+if [ -z "${ports}" ]; then
+  echo "${YELLOW} [!] ${NC} No ports open, exiting."
+  exit
+fi
+
 # Guess versions full
 if [ ! -f ${wksp}/nmap_ft.xml ]; then
   echo "${GREEN} [*] ${NC} Identifying protocol versions of each port."
@@ -48,6 +59,13 @@ fi
 if [ ! -f ${wksp}/nmap_lt ]; then
   echo "${GREEN} [*] ${NC} Identifying protocol versions of each TCP port (Light)."
   nmap -n --open -p${ports} --version-light -oN ${wksp}/nmap_lt ${ipadd}
+fi
+
+if [ ! -f /usr/share/nmap/scripts/banner-plus.nse ]; then
+  echo "${YELLOW} [!] ${NC} Grabbing HD Moore's banner-plus.nse."
+  cd /root
+  git clone https://github.com/hdm/scan-tools.git
+  cp /root/scan-tools/nse/banner-plus.nse /usr/share/nmap/scripts/
 fi
 
 # Guess version ALL
@@ -65,6 +83,7 @@ for port in $(echo $ports | sed "s/,/ /g"); do
   echo "${GREEN} [*] ${NC} Checking for anything interesting on ${port}."
   if [ $port -eq 22 ]; then
     nmap -n -Pn -p ssh -sV -A -oN ${wksp}/nmap_ssh ${ipadd}
+    hydra -v -l root -P /root/wordlist/SecLists/Passwords/Common-Credentials/best110.txt -t 3 -o ${wksp}/hydra_ssh ssh://${ipadd} 
   fi
   if [ $port -eq 80 ] || [ $port -eq 443 ]; then
     #nmap -n -Pn --script http-enum -oN ${wksp}/nmap_${port} ${ipadd}
@@ -86,7 +105,7 @@ for port in $(echo $ports | sed "s/,/ /g"); do
   fi
   if [ $port -eq 139 ] || [ $port -eq 445 ]; then
     #nmap -n -Pn -p $port -A -oN ${wksp}/nmap_${port} ${ipadd}
-    enum4linux -v -a ${ipadd} >> ${wksp}/e4l_${port}
+    enum4linux ${ipadd} >> ${wksp}/e4l_${port}
     smbclient -N --list=${ipadd} >> ${wksp}/smb_${port}
   fi
   if [ $port -eq 3306 ]; then
